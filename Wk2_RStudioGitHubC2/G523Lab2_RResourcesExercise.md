@@ -21,8 +21,9 @@ Recommend the ```read.csv``` command.  This will create a Data Frame
 ###### Prepare the data for *rioja*
 You'll need to do the following processing steps:
 + Extract pollen counts from Data Frame and create a holding matrix
-+ Ensure that your matrix follows the format of rows=observations and columns=variables
-+ Convert counts to percentages for each sample
++ Ensure that your matrix follows the format of rows=observations and columns=variables.  You may need to transpose your data.
++ Convert counts to percentages for each sample.  The commands ```rowSum```, ```rowSums```, or ```rowsum.data.frame``` are useful here.
+
 These operations are a good chance to learn or refresh yourself on R syntax.  
 
 ###### Make a pollen diagram in *rioja*
