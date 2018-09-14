@@ -1,4 +1,4 @@
-## Introduction to Git & GitHub
+## Lab 2: Introduction to Git & GitHub
 ### Geog920/523
 #### Jack Williams & Scott Farley
 
@@ -35,22 +35,24 @@ Then, clone the directory:
 
 ``` git clone https://github.com/[USERNAME OR  ORGANIZATION]/[REPOSITORY NAME]```
 
-e.g. Cloning the Geography523 repository to your computer:
+e.g. Cloning the forked Geography523 repository to your computer:
 
-``` git clone  https://github.com/WilliamsPaleoLab/Geography523 ```
+``` git clone  https://github.com/[YOUR USERNAME]/Geography523 ```
 
 ##### Git Pull requests
 In a pull request, you pull the latest version of the code/files on the GitHub server and bring it to your local directory.  It is a one-way synchronization.  
 It is very good practice to do pull requests on a regular basis, so that you are always working with the latest code! Do this every time you get back to work on a project.
-``` git pull  https://github.com/[YOUR USER NAME]/Geography523 ```
+``` git pull  https://github.com/[YOUR USERNAME]/Geography523 ```
 
 If you've just cloned, then pulled, you should get a message saying that your local version is up to date.  
 
+If your local repository has not diverged from the server repository, then pull requests are easy.  They are also easy if the computer can easily figure out how to reconcile divergences.  (e.g. if you've been working on one file locally and someone else has been modifying an entirely different file on the master version).  Pull requests get complicated if the same file has been altered on both the local and server versions.  Then, you'll need to review and merge changes.  For this class, we will generally try to avoid this situation.
+
 ##### Making Changes and Commits: Add/Commit
-Github tracks things called Diffs – a record of what was added, deleted, or changed inside of every file in your repo, a lot like track changes in Word. Git is different from Word, however, because you can revert back to previous timestamps. To mark a specific timestamp as a place you might want to come back to, you commit your project. Committing is kind of like adding a waypoint to your project – each file is marked at its current configuration at this point in time. We follow a 3-step process here:
+Github tracks things called Diffs – a record of what was added, deleted, or changed inside of every file in your repo, a lot like track changes in Word. Git is different from Word, however, because you can revert back to previous timestamps. To mark a specific timestamp as a place you might want to come back to, you commit your project. Committing is kind of like adding a waypoint to your project – each file is marked at its current configuration at this point in time. This follows a 3-step process:
 1. Tell Git which files to add to the commit through the ```add``` command (usually but not always followed by the ```--all``` specifier)
 2. Do the commit, identifying it by a short message - up to a few dozen characters or so
-3. Push your local changes to the Github server. 
+3. Push your local changes to the Github server.
 
 ```git add --all ```
 
@@ -58,11 +60,9 @@ Github tracks things called Diffs – a record of what was added, deleted, or ch
 
 ```git push [origin branch] ```
 e.g. ``` git push origin JackW ```
+or ``` git push origin master ```
 
-If you are the primary owner/developer of a repository, it is OK to push straight to the master branch (```git push origin master ```).  Otherwise, push to your side branch.
-
-##### Initiating Pull requests
-OK, so you've been pushing your changes and commits to your branch.  Your
+If you are the primary owner/developer of a repository, it is OK to push straight to the master branch (```git push origin master ```).  Otherwise, push to a side branch.
 
 
 
