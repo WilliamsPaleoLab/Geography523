@@ -1,28 +1,15 @@
 ## Geog920/523
-### Lab 2:  Introduction to R, RStudio, GitHub
+### Lab 3:  Age-Depth Models
 
 ### Things to Do Before Class
 
+#### Make sure that *clam* and *bacon* packages are installed in R
 
-#### Create GitHub Account and Send Username To Instructors
-Please do this first, so that you can access course materials that we are posting the course GitHub page.
+#### Read Two Papers:
+(All readings available in  [WiscBox](https://uwmadison.box.com/s/6gv01f8tfuki173oxqk9z57mytcf2lwq))
 
-[GitHub Webpage](https://www.github.com)
+1.
 
-#### Install/Update R
-Please ensure that your version of R is 3.5.x or later.  During workshops in summer 2018, we ran into package update bugs when earlier versions of R were used.
+#### Other Good Readings
 
-[R Project Webpage](https://www.r-project.org/)
-
-#### Install RStudio
-Not required, but recommended: RStudio offers a useful GUI  for working with R scripts, files, packages, etc. [RStudio Website](https://www.rstudio.com/)
-
-#### Install R Packages
-List of packages likely will be updated over time, but here's a starter.  Suggestions welcome for additional packages.
-
-*analogue, dplyr, jsonlite, ggplot2, markdown, neotoma, pagan, palaeoSig, rioja, shiny, vegan*
-
-I prefer to add packages in RStudio, but up to you.
-
-#### Install Git on your Computer
-[Git](https://git-scm.com/downloads)
+Grimm, E. C., Blaauw, M., Buck, C. E., and Williams, J. W. (2014) Age models, chronologies, and databases workshop: Complete report and recommendations. PAGES Workshop Report 22. *A discussion of how to best define, represent, and store age controls, age inferences, and age-depth models in paleodatabases such as Neotoma*
