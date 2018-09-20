@@ -1,0 +1,48 @@
+#how to read csv file
+> #This also shows how to ignore the first 9 rows.
+> lake_mendota<-read.csv("lake_mendota_dcore.csv",skip=9,header=FALSE)
+> #reassigning data to "pollen counts" while ignoring the first 5 columns.
+> pollen_counts<-t(lake_mendota[,-c(1:5)])
+> #the above code also tranposes the data
+> colnames(pollen_counts)<-lake_mendota[,1]
+> #This replaces all N/A with zeros throughout the dataset.
+> pollen_counts[is.na(pollen_counts)]<-0
+> counts_final<-pollen_counts
+> #Converting to percentages
+> percentages<-100*counts_final/rowSums(counts_final)
+> #Reducing data to genera only present at greater than or equal to 5%
+> inclusion.criterion<-apply(percentages,2,function(x)(sum(x>5))>1)
+> percentages_clean<-percentages[,inclusion.criterion]
+> #Summoning rioja
+> library(rioja)
+This is rioja 0.9-15.1
+> #pulling out depths to use in pollen diagram
+> lake_mendoa_total<-read.csv("lake_mendota_dcore.csv")
+> depths.factor<-lake_mendoa_total$name="Depth",6:ncol(lake_mendoa_total)
+Error: unexpected ',' in "depths.factor<-lake_mendoa_total$name="Depth","
+> depths.factor<-lake_mendoa_total$name='Depth',6:ncol(lake_mendoa_total)
+Error: unexpected ',' in "depths.factor<-lake_mendoa_total$name='Depth',"
+> depths.factor<-lake_mendoa_total$name=='Depth',6:ncol(lake_mendoa_total)
+Error: unexpected ',' in "depths.factor<-lake_mendoa_total$name=='Depth',"
+> depths.factor<-lake_mendoa_total$name=='Depth',6:ncol(lake_mendoa_total)
+Error: unexpected ',' in "depths.factor<-lake_mendoa_total$name=='Depth',"
+> depths.factor<-lake_mendota[lake_mendota$name=='Depth',6:ncol(lake_mendota)]
+> depths.factor<-lake_mendota_total[lake_mendota$name=='Depth',6:ncol(lake_mendota)]
+Error: object 'lake_mendota_total' not found
+> lake_mendoa_total<-read.csv("lake_mendota_dcore.csv")
+> depths.factor<-lake_mendota_total[lake_mendota_total$name=='Depth',6:ncol(lake_mendota)]
+Error: object 'lake_mendota_total' not found
+> lake_mendota_total<-read.csv("lake_mendota_dcore.csv")
+> depths.factor<-lake_mendota_total[lake_mendota_total$name=='Depth',6:ncol(lake_mendota)]
+> depths.character<-as.character(unlist(depths.factor))
+> depths<-as.numeric(depths.character)
+> #Now to make the pollen diagram
+> #assigning color scheme
+> p.col<-c("forestgreen")
+> pol.plot <- strat.plot(ma.pollen1, yvar=depths, y.rev=TRUE, plot.line=FALSE, plot.poly=TRUE, plot.bar=TRUE, col.bar="black", col.poly=p.col, col.poly.line="black", scale.percent=TRUE, xSpace=0.01, x.pc.lab=TRUE, x.pc.omit0=TRUE, las=2)
+Error in is.data.frame(x) : object 'ma.pollen1' not found
+> pol.plot <- strat.plot(percentages_clean, yvar=depths, y.rev=TRUE, plot.line=FALSE, plot.poly=TRUE, plot.bar=TRUE, col.bar="black", col.poly=p.col, col.poly.line="black", scale.percent=TRUE, xSpace=0.01, x.pc.lab=TRUE, x.pc.omit0=TRUE, las=2)
+> pol.plot <- strat.plot(percentages_clean, yvar=depths, y.rev=TRUE,ylabel = "Depth (cm)" plot.line=FALSE, plot.poly=TRUE, plot.bar=TRUE, col.bar="black", col.poly=p.col, col.poly.line="black", scale.percent=TRUE, xSpace=0.01, x.pc.lab=TRUE, x.pc.omit0=TRUE, las=2)
+Error: unexpected symbol in "pol.plot <- strat.plot(percentages_clean, yvar=depths, y.rev=TRUE,ylabel = "Depth (cm)" plot.line"
+> pol.plot <- strat.plot(percentages_clean, yvar=depths, y.rev=TRUE,ylabel = "Depth (cm)", plot.line=FALSE, plot.poly=TRUE, plot.bar=TRUE, col.bar="black", col.poly=p.col, col.poly.line="black", scale.percent=TRUE, xSpace=0.01, x.pc.lab=TRUE, x.pc.omit0=TRUE, las=2)
+> 
