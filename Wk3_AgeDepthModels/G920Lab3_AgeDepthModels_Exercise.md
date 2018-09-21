@@ -33,7 +33,7 @@ Here we will gain practice in working with age-depth models of various kinds, us
 2. Now, having done this by hand using CALIB, do the same calibration using the *calibration* function in *clam*
   + ```calibrate(13000,100)```  Calibrate using the default NH calibration curve
   + ```calibrate(13000,100,cc=2))``` Calibrate using using the MARINE13 curve
-  + ```calibrate(13000,100,reservoir=(50,30),cc=2)``` Calibrate using using the MARINE13 curve and a specified marine reservoir correction of 50 years with uncertainty of 30 years.
+  + ```calibrate(13000,100,reservoir=c(50,30),cc=2)``` Calibrate using using the MARINE13 curve and a specified marine reservoir correction of 50 years with uncertainty of 30 years. Note the use of ```c``` (concatenate) to combine the individual values 50,50 into a single vector that is then the argument passed to the reservoir parameter.
 + Hopefully your CALIB and *clam* numbers agree!  
 
 #### Classic Age Models (*clam*)
