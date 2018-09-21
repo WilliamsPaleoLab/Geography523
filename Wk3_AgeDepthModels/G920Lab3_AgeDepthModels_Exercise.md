@@ -1,4 +1,4 @@
-## Lab 2: Age-Depth Models
+## Lab 3: Age-Depth Models
 ### Geog920/523
 #### Jack Williams & Mathias Trachsel
 
