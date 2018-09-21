@@ -3,7 +3,7 @@
 
 ### Things to Do Before Class
 
-#### Ensure that *clam*, *rbacon*, and *bchron* packages are installed in your R environment
+#### Ensure that *clam*, *rbacon*, and *Bchron* packages are installed in your R environment
 
 #### Read Two Papers:
 (All readings available in  [WiscBox](https://uwmadison.box.com/s/6gv01f8tfuki173oxqk9z57mytcf2lwq))

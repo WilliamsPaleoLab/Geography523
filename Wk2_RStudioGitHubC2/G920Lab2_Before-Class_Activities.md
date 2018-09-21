@@ -20,7 +20,7 @@ Not required, but recommended: RStudio offers a useful GUI  for working with R s
 #### Install R Packages
 List of packages likely will be updated over time, but here's a starter.  Suggestions welcome for additional packages.
 
-*analogue, bchron, clam, dplyr, jsonlite, geochron, ggplot2, markdown, neotoma, pagan, palaeoSig, rbacon, rioja, shiny, vegan*
+*analogue, Bchron, clam, dplyr, jsonlite, geochron, ggplot2, markdown, neotoma, pagan, palaeoSig, rbacon, rioja, shiny, vegan*
 
 I prefer to add packages in RStudio, but up to you.
 
