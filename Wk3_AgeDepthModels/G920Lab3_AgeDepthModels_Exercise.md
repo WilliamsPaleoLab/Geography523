@@ -37,7 +37,7 @@ Here we will gain practice in working with age-depth models of various kinds, us
 + Hopefully your CALIB and *clam* numbers agree!  
 
 #### Classic Age Models (*clam*)
-1. Pick a site from Neotoma and download geochronological data & pollen data, using the scripts you developed in the previous lab.  You may use the same site as last week or a new one.  Try to pick a site that spans at least the last 15,000 years and has a few bends in its age-depth plot.  Neotoma Explorer's Stratigraphic Diagrammer may be helpful here. Devils Lake WI is a good default option.
+1. Pick a site from Neotoma and download geochronological data & pollen data, using the scripts you developed in the previous lab.  You may use the same site as last week or a new one.  Try to pick a site that spans at least the last 15,000 years and has a few bends in its age-depth plot.  Neotoma Explorer's Stratigraphic Diagrammer may be helpful here. I have posted a sample geochronology dataset (clam_runs/DevilsLakeAMS/DevilsLakeAMS.csv) from Devils Lake WI to give an example of the input directory structure and file formatting expected by *clam*.
   + clam expects input dates in a csv file in a subdirectory of the same name (e.g. ```./MyCore1/MyCore1.csv```) - see Example/Example.csv for the expected format
   + to run:  ```clam(core="MyCore1")```
 2. Build the following age-depth models using clam:
@@ -56,7 +56,7 @@ Here we will gain practice in working with age-depth models of various kinds, us
 #### Bayesian Age Models (*bacon*)
 A very useful resource:  the [Bacon Manual](http://www.chrono.qub.ac.uk/blaauw/manualBacon_2.2.pdf)
 1. Simply running ```bacon()``` will run bacon using all default parameters and the sample dataset.  Try it.
-2. Now, let's run *bacon* for your dataset. Like *clam*, *bacon* expects your input data to be in a csv file in a subdirectory of the same name.  Common parameters:
+2. Now, let's run *bacon* for your dataset. Like *clam*, *bacon* expects your input data to be in a csv file in a subdirectory of the same name.  However, the expected column structure is a bit different. I've also posted the geochronology dataset (Bacon_runs/DevilsLakeAMS/DevilsLakeAMS.csv) from Devils Lake WI as an example. Common parameters for *Bacon*:
   + ```core="MyCore1"```
   + ```thick=5``` Bacon breaks up each core into a series of sections.  This parameter determines the section length.  e.g. for a core of total length 100cm, thick=5 would produce 20 section of 5cm apiece.
   + ```hiatus=450``` places a hiatus at 450cm.
