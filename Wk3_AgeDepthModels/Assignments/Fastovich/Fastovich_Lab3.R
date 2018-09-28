@@ -42,5 +42,11 @@ calrange[calrange[,1] == 4000,] # Notable event 2
 
 # Bacon Age Models `bacon`
 Bacon("Tulane", run = FALSE) # Thickness of 10
+quantile(Bacon.Age.d(4060), c(0.025, 0.5, 0.975))
+quantile(Bacon.Age.d(4000), c(0.025, 0.5, 0.975))
 Bacon("Tulane_20", thick = 20, run = FALSE) # Thickness of 20
+quantile(Bacon.Age.d(4060), c(0.025, 0.5, 0.975))
+quantile(Bacon.Age.d(4000), c(0.025, 0.5, 0.975))
 Bacon("Tulane_30", thick = 30, run = FALSE) # Thickness of 30
+quantile(Bacon.Age.d(4060), c(0.025, 0.5, 0.975))
+quantile(Bacon.Age.d(4000), c(0.025, 0.5, 0.975))
