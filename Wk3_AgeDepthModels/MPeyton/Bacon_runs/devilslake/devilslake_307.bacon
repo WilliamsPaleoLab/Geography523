@@ -1,0 +1,18 @@
+## Ran on Fri Sep 28 08:41:58 2018 
+
+Cal 0 : ConstCal;
+Cal 1 : IntCal13, 0;
+Cal 2 : Marine13;
+Cal 3 : SHCal13, 0;
+
+##   id.   yr    std   depth  delta.R  delta.STD     t.a   t.b   cc
+Det 0 : 109057 ,  245,  55,  21.5,  0,  0,  3,  4,  1;
+Det 1 : 109068 , 12520, 160, 607;
+Det 2 : 165134 , 8590, 50, 474;
+Det 3 : 165135 , 9740, 50, 535;
+Det 4 : 165136 , 10110, 140, 550;
+Det 5 : 165137 , 10730, 50, 583.75;
+Det 6 : 165138 , 12580, 130, 633;
+
+##		 K   MinYr   MaxYr   th0   th0p   w.a   w.b   alpha  beta  dmin  dmax
+Bacon 0: FixT, 307,  -1000,  1e+06,  299,  244,  2.8,  1.2,  1.5,  0.075, 21.5, 633;
