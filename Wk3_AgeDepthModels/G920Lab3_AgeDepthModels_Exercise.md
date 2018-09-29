@@ -47,7 +47,7 @@ Here we will gain practice in working with age-depth models of various kinds, us
   + cubic spline (```type="spline"```)
 3. For each age model:
   + Make a age-depth plot that shows both the age controls and age-depth model.  Plot depth on the x-axis and age on the y-axis.
-  + Pick two notable events (e.g. end-Pleistocene Picea decline) and build a table that reports in separate columns the mean age and uncertainty (either 1 sigma or 2 sigma ok, but be consistent and note which you report)  
+  + Pick two notable events (e.g. end-Pleistocene Picea decline) and build a table that reports in separate columns (either 1 sigma or 2 sigma ok, but be consistent and note which you report)  
 4. Using clam, construct a smooth spline (```type="smooth"```) with the default smoothing parameter
   + Experiment with alternative values of the ```smooth``` parameter and pick 3-4 that show a range of model behavior
   + Then, as in 3., make an age-depth plot that shows the various splines and a table that reports their age estimates and uncertainties.
