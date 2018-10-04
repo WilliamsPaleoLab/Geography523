@@ -1,20 +1,51 @@
 ## Lab 5: Neotoma
 ### Geog920/523
 #### Jack Williams & Mathias Trachsel
-##### Goals
-+ Learn how to use the *neotoma* R package
-+ Learn key *neotoma* get_site, get_dataset, get_download
-+ Understand the flow of data from the Neotoma R package, APIs, and R package.
-+ Develop code to pass data from Neotoma Database to standard software such as *rioja* or *clam*
-##### Resources
-+ *neotoma* R package: [CRAN download](https://CRAN.R-project.org/package=neotoma)
-+ *neotoma* [GitHub Repository](https://github.com/ropensci/neotoma) (hosted by ROpenSci)
-+ [Paper](https://openquaternary.com/articles/10.5334/oq.ab/):  Goring, S., Dawson, A., Simpson, G., Ram, K., Graham, R. W., Grimm, E. C., and Williams, J. W. (2015) neotoma: A Programmatic Interface to the Neotoma Paleoecological Database. Open Quaternary 1:1-17.
-##### Introduction
-In this lab, we'll do a series of exercises designed to give you hands-on practice in using the *neotoma* R package (Goring et al, 2015)
-API
+***
+#### Goals
++ Learn how to use the *neotoma* R package and
+key functions  (e.g. *get_site, get_dataset, get_download*)
++ Understand the flow of data through the Neotoma Paleoecology Database package, APIs, and *neotoma* package.
++ Develop code to prepare Neotoma data for passing to standard software such as *rioja* or *bacon*
 
+#### Resources
++ [CRAN download](https://CRAN.R-project.org/package=neotoma) for *neotoma* R package:
++ [GitHub Repository](https://github.com/ropensci/neotoma) for *neotoma* source code (hosted by ROpenSci)
++ [Paper](https://openquaternary.com/articles/10.5334/oq.ab/):   Goring, S., Dawson, A., Simpson, G., Ram, K., Graham, R. W., Grimm, E. C., and Williams, J. W. (2015) neotoma: A Programmatic Interface to the Neotoma Paleoecological Database. Open Quaternary 1:1-17.
 
+#### Introduction
+In this lab, we'll do a series of exercises designed to give you hands-on practice in using the *neotoma* R package (Goring et al, 2015) and its key functions.  *neotoma*'s primary purpose is to pass data from the Neotoma Paleoecology Database (Neotoma DB) into the R environment.  Neotoma relies on Application Programming Interfaces ([APIs](https://en.wikipedia.org/wiki/Application_programming_interface)) to communicate with the Neotoma Paleoecology Database, so we'll begin by  introduce these to you as well.  
+
+#### APIs
+The Neotoma Paleoecology Database is a relational database, hosted on servers at Penn State's [Center for Environmental Informatics](http://www.cei.psu.edu/).  For security reasons, direct access to these servers is quite limited, and available only to a few Neotoma and CEI programmers.  
+
+APIs offer public access points into Neotoma that anyone can use.  Each API is basically a function:  you provide the API with a set of operational parameters, and it returns a set of data or metadata.  [REST-ful APIs ](https://en.wikipedia.org/wiki/Representational_state_transfer) follow a particular set of standards that allow them to be read by web browsers (i.e. within the HTTP protocol) and return data objects, typically in HTML, XML, JSON or other human- & machine-readable formats
+
+The [Neotoma APIs](http://api.neotomadb.org/doc/home) provide a series of functions for retrieving different kinds of data from Neotoma DB.  Data objects are returned in [JSON](https://en.wikipedia.org/wiki/JSON) format.  For this exercise, we strongly recommend adding an extension to your browser that formats the JSON output to make it easier to read
+
+As an example, go to the documentation page for the 'Sites' API:  
+http://api.neotomadb.org/doc/resources/sites
+
+Read though the documentation.  Then, try this example by copying the below text and pasting it into your browser address line:
+
+`api.neotomadb.org/v1/data/sites?sitename=*devil*`
+
+This should open a new web page in your browser with a returned JSON object.  For this search, the JSON object should include 16 or more sites with the name 'devil' in them (note the use of asterisks as wildcards), including Devil's Lake, WI.  The opening line 'success = 1' means that the API ran successfully.  
+
+Note that it is possible for an API to run successfully but return no data!  For example, try:
+
+`api.neotomadb.org/v1/data/sites?sitename=devil`
+
+Here, success = 1, but the returned data object is empty.
+
+OK, now your turn.  Here's a few activities for your exercise:
+1. **Exercise Question 5.1** Use the *sites* API to retrieve site data for sites of interest.  The *sites* API has a few different parameters, so try out options.  In your homework exercise, provide a script with at least two *sites* API calls with a comment line.  
+
+2. **Exercise Question 5.2** Do the same for the  *datasets* and *downloads* API (only one API example of each needed).  Note that data volumes for objects returned by *downloads* can get quite large, so be judicious.
+
+Note also that the 'DBTables' set of APIs is *very* helpful - this provides direct access to the contents each individual table stored inside of the Neotoma DB.  This is both a good way to get a better sense of the Neotoma DB data model (in addition to the (manual[https://neotoma-manual.readthedocs.io/en/latest/])) and to access data when one of the standard APIs isn't working for you.
+
+3. **Exercise Question 5.3** Write a query that returns 50 records from the *Geochronology* table.
 
 XXX TEXT FROM Simon
 # Starting Out in R
