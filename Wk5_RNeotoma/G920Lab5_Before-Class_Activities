@@ -9,4 +9,4 @@ Ensure that *neotoma* has been installed on your version of R.
 #### Read:
 Goring, S., Dawson, A., Simpson, G., Ram, K., Graham, R. W., Grimm, E. C., and Williams, J. W. (2015) neotoma: A Programmatic Interface to the Neotoma Paleoecological Database. Open Quaternary 1:1-17.
 
-Note that the *neotoma* package has continued to develop since this paper, so you should also look at the package documentation
+Note that the *neotoma* package has continued to develop since this paper, so you should also look at the package documentation.
