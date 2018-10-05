@@ -7,26 +7,27 @@
 + Understand the flow of data through the Neotoma Paleoecology Database package, APIs, and *neotoma* package.
 + Learn how to use the *neotoma* R package and
 key functions  (e.g. *get_site, get_dataset, get_download*)
-+ Develop working code to prepare Neotoma data for passing to standard software such as *rioja* or *bacon*
++ Learn and develop code for single-site and multi-site data visualizations.
++ Learn to prepare Neotoma data for passing to standard software such as *rioja* or *analogue*
 
 #### Resources
 + [CRAN download](https://CRAN.R-project.org/package=neotoma) for *neotoma* R package:
 + [GitHub Repository](https://github.com/ropensci/neotoma) for *neotoma* source code (hosted by ROpenSci)
-+ [Paper](https://openquaternary.com/articles/10.5334/oq.ab/):   Goring, S., Dawson, A., Simpson, G., Ram, K., Graham, R. W., Grimm, E. C., and Williams, J. W. (2015) neotoma: A Programmatic Interface to the Neotoma Paleoecological Database. Open Quaternary 1:1-17.
++ [Paper](https://openquaternary.com/articles/10.5334/oq.ab/):   Goring, S., Dawson, A., Simpson, G., Ram, K., Graham, R. W., Grimm, E. C., and Williams, J. W. (2015) neotoma: A Programmatic Interface to the Neotoma Paleoecological Database. *Open Quaternary* 1:1-17.
 
 #### Introduction
-In this lab, we'll do a series of exercises designed to give you hands-on practice in using APIs and the *neotoma* R package (Goring et al, 2015), both for practical reasons and for  insights into how open-data systems work.  *neotoma*'s primary purpose is to pass data from the Neotoma Paleoecology Database (Neotoma DB) into the R environment.  Neotoma relies on Application Programming Interfaces ([APIs](https://en.wikipedia.org/wiki/Application_programming_interface)) to communicate with the Neotoma Paleoecology Database, so we'll begin with an introduction to APIs.  
+This series of exercises is designed to give you hands-on practice in using APIs and the *neotoma* R package (Goring et al, 2015), both for practical reasons and for  insights into how open-data systems work.  *neotoma*'s primary purpose is to pass data from the Neotoma Paleoecology Database (Neotoma DB) into the R environment.  Neotoma relies on Application Programming Interfaces ([APIs](https://en.wikipedia.org/wiki/Application_programming_interface)) to communicate with the Neotoma Paleoecology Database, so we'll begin with an introduction to APIs.  
 
-Note that the R components of this exercise are adapted from materials originally developed by Simon Goring (also Jack Williams, Jessica Blois, Simon Goring) for Neotoma training workshops (e.g. [HTML](http://www.goring.org/resources/Neotoma_Lesson.html) and [GitHub](https://github.com/SimonGoring/Neotoma_Lesson)) and are reproduced here under the [MIT License](https://opensource.org/licenses/MIT). Thanks to Simon and all! Additional Workshop resources can be found on the [NeotomaDB Repository](https://github.com/NeotomaDB/Workshops).
+Note that the R components of this exercise are adapted from materials originally developed by Simon Goring, Jack Williams, and others for Neotoma training workshops at PalEON and elsewhere (e.g. [HTML](http://www.goring.org/resources/Neotoma_Lesson.html) and [GitHub](https://github.com/SimonGoring/Neotoma_Lesson)) and are reproduced here under the [MIT License](https://opensource.org/licenses/MIT). Thanks to Simon and all! The PalEON2016 materials and other Neotoma Workshop resources can be found on the [NeotomaDB Repository](https://github.com/NeotomaDB/Workshops).
 
 #### APIs
 The Neotoma Paleoecology Database is a relational database, hosted on servers at Penn State's [Center for Environmental Informatics](http://www.cei.psu.edu/).  For security reasons, direct access to these servers is quite limited, and available only to a few Neotoma and CEI programmers.  
 
-**APIs** offer public access points into Neotoma that anyone can use.  Each API is basically a function:  you provide the API with a set of operational parameters, and it returns a set of data or metadata.  [REST-ful APIs ](https://en.wikipedia.org/wiki/Representational_state_transfer) follow a particular set of standards that allow them to be read by web browsers (i.e. within the HTTP protocol) and return data objects, typically in HTML, XML, JSON or other human- & machine-readable formats
+**APIs** offer public access points into Neotoma that anyone can use.  Each API is basically a function:  you provide the API with a set of operational parameters, and it returns a set of data or metadata.  Each API hence is designed to support one particular task or set of tasks; it offers a narrow window into the larger Neotoma DB. [REST-ful APIs ](https://en.wikipedia.org/wiki/Representational_state_transfer) follow a particular set of standards that allow them to be read by web browsers (i.e. within the HTTP protocol) and return data objects, typically in HTML, XML, JSON or other human- & machine-readable formats
 
-The [**Neotoma APIs**](http://api.neotomadb.org/doc/home) provide a series of functions for retrieving different kinds of data from Neotoma DB.  Data objects are returned in [JSON](https://en.wikipedia.org/wiki/JSON) format.  For this exercise, we strongly recommend adding an extension to your browser that formats the JSON output to make it easier to read.
+The [**Neotoma APIs**](http://api.neotomadb.org/doc/home) provide a series of functions for retrieving different kinds of data from Neotoma DB.  Data objects are returned in [JSON](https://en.wikipedia.org/wiki/JSON) format.  For this exercise, we strongly recommend adding an extension to your browser that formats the JSON output to make it easier to read, such as [JSONView](https://addons.mozilla.org/en-US/firefox/addon/jsonview/).
 
-As an example, go to the documentation page for the 'Sites' API:  
+As an example, go to the documentation page for the `Sites` API:  
 http://api.neotomadb.org/doc/resources/sites
 
 Read though the documentation.  Then, try this example by copying the below text and pasting it into your browser address line:
@@ -41,8 +42,8 @@ Note that it is possible for an API to run successfully but return no data!  For
 
 Here, `success = 1`, but `data=[]`, i.e. the API successfully reported back to you that no sites in Neotoma have the exact name of 'devil'.
 
-OK, now your turn.  Here's a few activities for your exercise:
-<p style="border:3px; border-style:solid; border-color:#a9a9a9; padding: 1em;">**Exercise Question 1** Use the *sites* API to retrieve site data for sites of interest.  The *sites* API has a few different parameters, so try out options.  In your homework exercise, provide a script with at least two *sites* API calls with a comment line.</p>  
+OK, now your turn:  
+<p style="border:3px; border-style:solid; border-color:#a9a9a9; padding: 1em;">**Exercise Question 1** Use the *sites* API to retrieve site data for sites of interest.  The *sites* API has a few different parameters, so try out options.  In your homework exercise, provide at least two *sites* API calls with a comment line.</p>  
 
 <p style="border:3px; border-style:solid; border-color:#a9a9a9; padding: 1em;">**Exercise Question 2** Do the same for the  *datasets* and *downloads* API (only one API example of each needed).  Note that data volumes for objects returned by *downloads* can get quite large, so be judicious.</p>
 
@@ -56,9 +57,7 @@ The *neotoma* package provides a series of functions inside of R, each one of wh
 
 Let's begin by installing and loading the *neotoma* package into RStudio. To install, open RStudio and type the command:
 
-`{r, eval = FALSE}
-install.packages('neotoma')
-`
+`install.packages('neotoma')`
 
 Then, load *neotoma* into memory:
 
@@ -77,9 +76,9 @@ Examine the results: `print(samwell_site)`
 `get_site` can return one site (as above) or many, e.g.:
 `devil_sites <- get_site(sitename = 'devil%');`
 
-*get_site* (and most *neotoma* functions) returns an data object of type `data.frame` that stores vectors of equal length.  The nice thing about a `data.frame` is that each vector can be of a different type (character, numeric values, *etc*.). In RStudio, you can use the Environment panel in upper right to explore the contents of `samwell_site`.
+`get_site` (and most *neotoma* functions) returns an data object of type `data.frame` that stores vectors of equal length.  The nice thing about a `data.frame` is that each vector can be of a different type (character, numeric values, etc.). In RStudio, use the Environment panel in upper right to explore the contents of `samwell_site`.
 
-While `samwell_site` is a data frame it also has class `site`, so the print output looks a little different than a standard R data frame.  This also allows you to use some of the other *neotoma* functions more easily.  
+While `samwell_site` is a data frame, it also has class `site`, so the print output looks a little different than a standard R data frame.  This also allows you to use some of the other *neotoma* functions more easily.  
 
 <p style="border:3px; border-style:solid; border-color:#a9a9a9; padding: 1em;">**Exercise Question 4** How many sites have the name 'clear' in them?  Show both your code and provide the total count.</p>
 
@@ -127,7 +126,7 @@ Let's look at the dataset metadata:
 
 `devil.meta.dataset`
 
-<p style="border:3px; border-style:solid; border-color:#a9a9a9; padding: 1em;">**Question 6**: How many different kinds of datasets are available at Devil's Lake, WI? Show both code and answer.  Edit your code so that it retrieves datasets for just this single site. </p>
+<p style="border:3px; border-style:solid; border-color:#a9a9a9; padding: 1em;">**Question 6**: How many different kinds of datasets are available at Devil's Lake, WI? Show both code and answer.  Ensure that your code just retrieves datasets for just this single site. </p>
 
 ##### What have I found? `browse`
 
@@ -137,14 +136,14 @@ For example: `browse(samwell_datasets)`
 
 Note that `browse` returns a local result of `null` to R (which is normal) and then calls a new browser window, showing the Samwell datasets in Neotoma Explorer.
 
-[*Oct 4, 2014: A bug:  browse() works, but Neotoma Explorer development version isn't calling Google Maps correctly.*]
+[*Oct 4, 2018: A bug:  browse() works, but Neotoma Explorer development version isn't calling Google Maps correctly.*]
 
-##### Want to read more? `get_publication`
+##### Want to read more? *get_publication*
 
 Like `browse()`, you can use `get_publication()` to get more information.  Pass in the publication IDs or a `dataset` object, e.g.:
 `samwell_pubs <- get_publication(samwell_datasets)`
 
-##### Time for Data:  `get_download` and `get_geochron`
+##### Can I Haz Data?  *get_download* and *get_geochron*
 
 `get_download()` returns a `list` that stores a list of `download` objects - one for each retrieved `dataset`.  Note that `get_download()` returns the actual data associated with each dataset, rather than a list of the available datasets, as in `get_dataset()` above.
 
@@ -206,10 +205,10 @@ Within the download object, `sample.meta` stores the core depth and age informat
 `head(samwell_pd[[1]]$counts)`
 
 `lab.data` stores any associated  laboratory measurements in the dataset. e.g. for pollen data, this will return information about any spike added to calculate concentrations
-head(samwell_pd[[1]]$lab.data)
+`head(samwell_pd[[1]]$lab.data)`
 
 
-#### Helper function:  `compile_taxa`
+#### Helper function:  *compile_taxa*
 
 The level of taxonomic resolution can vary among analysts.  Often for multi-site analyses it is helpful to aggregate to a common taxonomic resolution. The `compile_taxa` function in `neotoma` will do this.  To help support rapid prototyping, `neotoma` includes a few pre-built taxonomic lists, so far mostly for North American pollen types. **However**, the function also supports the use of a custom-built `data.frame` for aligning taxonomies.  Because new taxa are added to Neotoma regularly (based on analyst identification), it is worthwhile to check the assignments performed by the `compile_taxa` function, and, if needed, build your own  compilation table.
 
@@ -229,9 +228,9 @@ You'll notice that warning messages return  a number of taxa that cannot be conv
 And note that if you look at the names of the objects in the new `download` object (using `names(devil_pollen_p25)`, there is now a `full.counts` object.  This allows you to continue using the original counts, while also retaining the new compiled counts.
 
 #### Visualization and Analysis: One Site
-As you know, the true power comes from passing Neotoma data to other R packages.  Here we will show the steps for simple plotting using the `analogue` package. For your own exercise, you'll prepare data for passing to `rioja`.
+The larger goal here is to pass Neotoma data to other R packages for visualization and analysis.  Here we will show how to prepare data for passing to the `analogue` package. Later, you'll prepare data for passing to `rioja`.
 
-Note: to make it clear which functions come from the `analogue` package we will use `analogue::` before the function names.   This is optional but good practice when you are using many R packages (in case both use the same name for a function).
+Note: to make it clear which functions come from the `analogue` package we will use `analogue::` before each function name.   This is optional but good practice when using many R packages (just in case two packages have used the same name for a function).
 
 `library("analogue")`
 
@@ -277,7 +276,7 @@ Now we use the function `compile_download` to combine the records.  We're really
 hem_compiled <- compile_downloads(hem_dec_dl)
 ```
 
-This next set of code gets a bit gnarly, but the goal is to find the unique taxon names from across all the downloaded sites, then 1) isolate only trees, shrubs & upland herbs, 2) convert to proportion, and 3) isolate the *Tsuga* samples.  
+This next set of code gets a bit gnarly, but order of operations is 1) find the unique taxon names from across all the downloaded sites,  2) isolate only trees, shrubs & upland herbs, 3) convert to proportion, and 4) isolate the *Tsuga* percentages.  
 
 ```r
 # Extract all taxon tables from the original download object  
@@ -318,8 +317,7 @@ plot(hemlock_all, col = rgb(0.1, 0.1, 0.1, 0.3), pch = 19, cex = 0.4,
      ylab = "Proportion of Hemlock",          xlab = "Years Before Present")
 ```
 
-And we can now see how rapidly the *Tsuga* decline affects the northeastern United States and Canada.  Note the large number of "zero" points.  It's also worth noting that there are a number of records that are only in Radiocarbon years.  This is critically important, given the offset between radiocarbon and calendar years.  (We and others are actively in the process of uploading new calendar-year age models to Neotoma).  The plot looks somewhat different if we separate radiocarbon years from other date types:
-
+We should now be able to see the well-known rapid decline of *Tsuga* in northeastern United States and Canada.  Note the large number of "zero" points.  It's also worth noting that there are a number of records that are only in Radiocarbon years.  This is critically important, given the offset between radiocarbon and calendar years.  (We and others are actively uploading new calendar-year age models to Neotoma).  The plot looks somewhat different if we separate sites with radiocarbon-year chronologies from other date types:
 
 ```r
 plot(hemlock_all,
