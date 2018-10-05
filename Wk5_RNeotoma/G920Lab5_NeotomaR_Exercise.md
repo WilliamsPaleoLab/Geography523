@@ -216,10 +216,11 @@ For example, the 'P25' list derives from Gavin et al., (2003) Quaternary Researc
 
 #To get Devil's Lake data, pass in SiteID 666)
 `devil_datasets <- get_dataset(666)`
+`devil_data <- get_download(devil_datasets)`
 #First dataset  at Devil's Lake is the Maher pollen dataset
-`devil_pollen <-devil_datasets[[1]]`
+`devil_pollen <-devil_data[[1]]`
 #Now, compile the Devil's Lake pollen data using the P25 listL
-`devil_pollen_p25 <- compile_taxa(demo_data_pollen, list.name = "P25")`
+`devil_pollen_p25 <- compile_taxa(devil_data[[1]], list.name = "P25")`
 
 You'll notice that warning messages return  a number of taxa that cannot be converted using the existing data table.  Are these taxa important?  They may be important for you.  Check to see which taxa have been converted by looking at the new taxon table:
 
