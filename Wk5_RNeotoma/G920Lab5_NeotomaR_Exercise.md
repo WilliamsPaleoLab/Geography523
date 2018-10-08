@@ -236,14 +236,15 @@ Note: to make it clear which functions come from the `analogue` package we will 
 `library("analogue")`
 
 #Convert the Devils Lake pollen data to percentages
-`devil_pollen_pct <- analogue::tran(x = devil_pollen$counts, method = 'percent')``
+`devil_pollen_pct <- analogue::tran(x = devil_pollen$counts, method = 'percent')`
 
 #Keep only the common taxa (avg>2%), drop rare taxa
-`devil_pollen_pct_norare <- devil_pollen_pct[, colMeans(devil_pollen_pct, na.rm = TRUE) > 2]``
+#Warning: JWW2018/10/07: May need to rm(devil_pollen_pct_norare) if pre-existing.
+`devil_pollen_pct_norare <- devil_pollen_pct[, colMeans(devil_pollen_pct, na.rm = TRUE) > 2]`
 
 #Make a pollen diagram in *analogue*
-`analogue::Stratiplot(x = devil_pollen_pct_norare[ , order(colMeans(devil_pollen_pct_notare, na.rm = TRUE),  decreasing = TRUE)], y = demo_data[[2]]$sample.meta$age,
- ylab = demo_data[[2]]$sample.meta$age.type[1],
+`analogue::Stratiplot(x = devil_pollen_pct_norare[ , order(colMeans(devil_pollen_pct_norare, na.rm = TRUE),  decreasing = TRUE)], y = devil_data[[1]]$sample.meta$age,
+ ylab = devil_data[[1]]$sample.meta$age.type[1],
  xlab = " Pollen Percentage")`
 
  <p style="border:3px; border-style:solid; border-color:#a9a9a9; padding: 1em;">**Question 7**: Make a stratigraphic pollen diagram in *rioja*, for a site of your choice (not Devils Lake).  Show code and resulting diagram. </p>
