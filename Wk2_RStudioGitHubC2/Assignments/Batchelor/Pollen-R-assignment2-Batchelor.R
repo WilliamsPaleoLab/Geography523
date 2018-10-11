@@ -1,3 +1,6 @@
+setwd("~/Desktop/Cameron_Bchron 2/GEOG920/")
+
+
 library("rioja")
 
 #Read in the csv file for my location (I picked Richland Creek Dataset from Illinois in Peiora)
@@ -53,7 +56,7 @@ p.col <- c(rep("forestgreen", times=7), rep("gold2", times=20))
 # Define y axis. We want our y-axis to be in depth, so call the 'rownames.new' that I made numerical above 
 y.scale <- rownames.new
 # Plot bar plot using rioja (strat.plot)
-pol.plot <- strat.plot(percentages_clean5, yvar=y.scale, y.tks=y.scale, y.rev=TRUE, plot.line=FALSE, plot.poly=FALSE, plot.bar=TRUE, col.bar=p.col, lwd.bar=10, scale.percent=TRUE, xSpace=0.01, x.pc.lab=TRUE, x.pc.omit0=TRUE, las=2)
+pol.plot <- strat.plot(percentages_clean10, yvar=y.scale, y.tks=y.scale, y.rev=TRUE, plot.line=FALSE, plot.poly=FALSE, plot.bar=TRUE, col.bar=p.col, lwd.bar=10, scale.percent=TRUE, xSpace=0.01, x.pc.lab=TRUE, x.pc.omit0=TRUE, las=2)
 
 #label my axis
 xlab="percentages"
