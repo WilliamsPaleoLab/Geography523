@@ -1,0 +1,953 @@
+Brittany Hupp
+Lab 5
+
+Exercise Question 1
+api.neotomadb.org/v1/data/sites?sitename=*mendota*
+Comment:
+{"success":1,"data":[{"LongitudeWest":-89.416667,"SiteID":1679,"SiteName":"Lake Mendota","Altitude":257.0,"LongitudeEast":-89.416667,"SiteDescription":null,"LatitudeNorth":43.1,"LatitudeSouth":43.1},{"LongitudeWest":-89.4,"SiteID":2647,"SiteName":"Mendota","Altitude":259.0,"LongitudeEast":-89.4,"SiteDescription":null,"LatitudeNorth":43.1,"LatitudeSouth":43.1}]}
+http://api.neotomadb.org/v1/data/sites?altMin=5000
+Comment:
+{"success":1,"data":[{"LongitudeWest":-104.25,"SiteID":3891,"SiteName":"Michaud Site B [5AH3]","Altitude":5400.0,"LongitudeEast":-104.25,"SiteDescription":null,"LatitudeNorth":39.5,"LatitudeSouth":39.5},{"LongitudeWest":-104.25,"SiteID":3892,"SiteName":"Michaud Site A [5AH2]","Altitude":5400.0,"LongitudeEast":-104.25,"SiteDescription":null,"LatitudeNorth":39.5,"LatitudeSouth":39.5},{"LongitudeWest":-70.17242,"SiteID":14202,"SiteName":"Lake Titicaca","Altitude":12507.0,"LongitudeEast":-68.5,"SiteDescription":null,"LatitudeNorth":-15.05621,"LatitudeSouth":-16.84398},{"LongitudeWest":-103.5,"SiteID":14412,"SiteName":"Donnelly Ranch","Altitude":5900.0,"LongitudeEast":-103.5,"SiteDescription":null,"LatitudeNorth":37.125,"LatitudeSouth":37.125},{"LongitudeWest":-84.6369444444444,"SiteID":16227,"SiteName":"Ansonia Cervlces","Altitude":7009.0,"LongitudeEast":-84.6369444444444,"SiteDescription":null,"LatitudeNorth":40.2144444444444,"LatitudeSouth":40.2144444444444},{"LongitudeWest":-82.2883333333333,"SiteID":16914,"SiteName":"Ferguson Farm [AcHm-31]","Altitude":17831.0,"LongitudeEast":-82.2883333333333,"SiteDescription":"J. Ferguson Farm, 3.2 km south-southwest of Tupperville, 178 m asl, Thames drainage, Kent County, Ontario","LatitudeNorth":42.4152777777778,"LatitudeSouth":42.4152777777778},{"LongitudeWest":-103.5,"SiteID":21753,"SiteName":"Mesa De Maya","Altitude":5900.0,"LongitudeEast":-103.5,"SiteDescription":null,"LatitudeNorth":37.125,"LatitudeSouth":37.125}]}
+
+Exercise Question 2
+note: I downloaded JSONview at this point in the exercise to better view the output.
+http://api.neotomadb.org/v1/data/datasets?datasettype=geochronologic
+Comment: Here is one example of the many produced from a dataset search.
+DatabaseName: "North American Pollen Database",
+DOI: null,
+AgeOldest: null,
+CollUnitName: "APT 76-B",
+CollUnitHandle: "ANDERSON",
+Site: {
+LongitudeWest: -85.50396,
+SiteID: 203,
+SiteName: "Anderson Pond",
+Altitude: 303,
+LongitudeEast: -85.49868,
+SiteDescription: null,
+LatitudeNorth: 36.03275,
+LatitudeSouth: 36.02755,
+SiteNotes: null
+},
+DatasetName: null,
+DatasetType: "geochronologic",
+DatasetID: 7882,
+SubDates: [
+{
+SubmissionDate: "2008-02-28",
+SubmissionType: "Recompilation into or revisions to Neotoma"
+}
+],
+CollectionUnitID: 203,
+AgeYoungest: null,
+CollUnitType: "Core",
+DatasetPIs: [ ]
+},
+
+For the downloads example:
+api.neotomadb.org/v1/data/downloads/24782
+success: 1,
+data: [
+{
+CollUnitType: "Isolated specimen",
+DatasetName: null,
+DatabaseName: "FAUNMAP",
+Samples: [
+{
+SampleName: null,
+AnalysisUnitDepth: null,
+AnalysisUnitName: "Assemblage",
+SampleID: 250873,
+SampleData: [
+{
+TaxonName: "Ovibos moschatus",
+VariableUnits: "present/absent",
+VariableElement: "bone",
+VariableContext: null,
+TaxaGroup: "Mammals",
+Value: 1,
+EcolGroupID: "ARTI"
+}
+],
+SampleAges: [
+{
+AgeOlder: 2580000,
+Age: null,
+AgeYounger: 11800,
+ChronologyName: "Faunmap 2.1",
+AgeType: "Calendar years BP",
+ChronologyID: 14980
+}
+],
+AnalysisUnitThickness: null
+}
+],
+CollUnitHandle: "FM4378",
+DatasetPIs: [
+{
+ContactID: 4554,
+ContactName: "Bensley, B.A."
+}
+],
+DatasetType: "vertebrate fauna",
+NeotomaLastSub: "2/13/2018",
+DOI: null,
+DefChronologyID: 14980,
+Site: {
+LongitudeWest: -75.3,
+SiteID: 16062,
+SiteName: "York Sand and Gravel Company",
+Altitude: null,
+SiteNotes: "FAUNMAP locational precision 'Quadrangle Approximate'.",
+LongitudeEast: -75.3,
+SiteDescription: null,
+LatitudeNorth: 44.85,
+LatitudeSouth: 44.85,
+Longitude: -75.3,
+Latitude: 44.85
+},
+DatasetID: 24782
+
+Exercise Question 3
+api.neotomadb.org/v1/dbtables/Geochronology?limit=50
+success: 1,
+data: [
+{
+MaterialDated: "peat",
+Age: 3540,
+SampleID: 108001,
+GeochronID: 1,
+RecDateModified: "2014-02-28T04:51:49",
+LabNumber: "WAT-2088",
+ErrorOlder: 70,
+AgeTypeID: 4,
+Delta13C: null,
+ErrorYounger: 70,
+GeochronTypeID: 2,
+Notes: null,
+Infinite: false,
+RecDateCreated: "2013-09-30T14:02:50"
+},
+
+
+Now onto the R portion of the exercise:
+> library(neotoma)
+> mendota_site <- get_site(sitename = 'mendota%')
+The API call was successful, you have returned  1 records.
+> print(mendota_site)
+ site.name  long  lat elev
+   Mendota -89.4 43.1  259
+A site object containing 1 sites and 8 parameters.
+
+
+
+> #Exercise Question 4
+> clear_sites <- get_site(sitename = 'clear%')
+The API call was successful, you have returned  40 records.
+
+
+> #Exercise Question 5
+> WI_sites <- get_site(gpid = "Wisconsin")
+The API call was successful, you have returned  459 records.
+> MN_sites <- get_site(gpid = "minnesota")
+Error in get_site.default(gpid = "minnesota") :
+  Cannot find a match for the gpid provided. Missing: minnesota
+> MN_sites <- get_site(gpid = "Minnesota")
+The API call was successful, you have returned  518 records.
+> #Minnesota has more sites.
+>
+> str(mendota_site)
+Classes ‘site’ and 'data.frame':	1 obs. of  8 variables:
+ $ site.id    : int 2647
+ $ site.name  : chr "Mendota"
+ $ long       : num -89.4
+ $ lat        : num 43.1
+ $ elev       : num 259
+ $ description: logi NA
+ $ long.acc   : num 0
+ $ lat.acc    : num 0
+> mendota_site$description
+[1] NA
+> samwell_site <- get_site(sitename = "Samwell%")
+The API call was successful, you have returned  1 records.
+> samwell_site$description
+[1] NA
+> samwell_site <- get_site(sitename = "Samwell%")
+The API call was successful, you have returned  1 records.
+> samwell_site$description
+[1] NA
+> mendota_datasets <- get_dataset(mendota_site)
+> print(mendota_datasets)
+A dataset_list containing 1 objects:
+Accessed from 2018-10-11 18:16h to 2018-10-11 18:16h.
+Datasets:
+ dataset.id site.name  long  lat                  type
+       2742   Mendota -89.4 43.1 pollen surface sample
+NULL
+> mendota.meta.dataset <-get_dataset(mendota_site)
+> mendota.meta.dataset
+A dataset_list containing 1 objects:
+Accessed from 2018-10-11 18:17h to 2018-10-11 18:17h.
+Datasets:
+ dataset.id site.name  long  lat                  type
+       2742   Mendota -89.4 43.1 pollen surface sample
+> devil_sites <- get_site(sitename = "devil%")
+The API call was successful, you have returned  17 records.
+> devil.meta.dataset<- get_dataset(devil_sites)
+> devil.meta.dataset
+A dataset_list containing 36 objects:
+Accessed from 2018-10-11 18:19h to 2018-10-11 18:19h.
+Datasets:
+ dataset.id                       site.name       long      lat                     type
+        683 Devils Lake, Main Bay            -98.95059 48.03154 pollen
+       8059 Devils Lake, Main Bay            -98.95059 48.03154 geochronologic
+        684 Devils Lake                      -89.73205 43.41780 pollen
+       3802 Devils Lake                      -89.73205 43.41780 pollen surface sample
+       8060 Devils Lake                      -89.73205 43.41780 geochronologic
+      14858 Devils Lake                      -89.73205 43.41780 water chemistry
+      14859 Devils Lake                      -89.73205 43.41780 ostracode surface sample
+       4743 Devil's Mouth [41VV188]         -101.00000 29.36667 vertebrate fauna
+       4744 Devil's Mouth [41VV188]         -101.00000 29.36667 vertebrate fauna
+       5342 Devil's Hollow [41TV38]          -97.75000 30.36667 vertebrate fauna
+       6375 Devil's Den                      -82.36667 29.36667 vertebrate fauna
+       6487 Devil's Eye Spring               -82.75000 29.86667 vertebrate fauna
+      10064 Devil's Eye Spring               -82.75000 29.86667 geochronologic
+       6632 Devil's Staircase Pit Cave       -86.25000 38.11667 vertebrate fauna
+       7183 Devil's Walking Stick [9Cam177]  -81.50000 30.75000 vertebrate fauna
+      14382 Devils Lake, Creel Bay           -98.92935 48.08590 pollen surface sample
+      15135 Devils Lake, Creel Bay           -98.92935 48.08590 geochronologic
+      15136 Devils Lake, Creel Bay           -98.92935 48.08590 pollen
+      14398 Devils Lake, Mission Bay         -98.88682 48.01823 pollen surface sample
+      17754 Devils Lake, Mission Bay         -98.88682 48.01823 water chemistry
+      17755 Devils Lake, Mission Bay         -98.88682 48.01823 ostracode surface sample
+      14856 Devils Lake                      -98.91884 48.05036 water chemistry
+      14857 Devils Lake                      -98.91884 48.05036 ostracode surface sample
+      38860 Devils Lake                      -98.91884 48.05036 geochronologic
+      38861 Devils Lake                      -98.91884 48.05036 diatom
+      15587 Devil's Bathtub                  -77.57376 43.02469 geochronologic
+      15588 Devil's Bathtub                  -77.57376 43.02469 pollen
+      17658 Devils Lake                      -93.33381 45.81509 water chemistry
+      17659 Devils Lake                      -93.33381 45.81509 diatom surface sample
+      22241 Devil's Lake                    -123.99247 44.98338 geochronologic
+      22242 Devil's Lake                    -123.99247 44.98338 diatom
+      31619 Devil's Canopy Cave [AKPET221]  -133.50000 56.16667 geochronologic
+      31620 Devil's Canopy Cave [AKPET221]  -133.50000 56.16667 vertebrate fauna
+      40246 Devils Lake                      -98.89294 48.01890 diatom
+      40328 Devils Lake                      -98.89294 48.01890 diatom
+      40430 Devil Peak Fauna                -115.45222 35.69722 vertebrate fauna
+
+
+Exercise Question 6: Five different types of datasets for Devils Lake, Wi (-89 W, 43 N)
+
+
+> browse(mendota_datasets)
+NULL
+> mendotapubs <- get_publication(mendota_datasets)
+The API call was successful, you have returned  1 record.
+> mendota_all1 <- get_download(mendota_site)
+Fetching datasets for the site(s)
+Getting downloads:
+API call was successful. Returned record for Mendota
+Warning in FUN(X[[i]], ...) :
+  This dataset has no defined default chronology.  Please use caution.
+Using the first chronology, No chronology as the default.
+> mendota_all2 <- get_download(mendota_datasets)
+API call was successful. Returned record for Mendota
+Warning in FUN(X[[i]], ...) :
+  This dataset has no defined default chronology.  Please use caution.
+Using the first chronology, No chronology as the default.
+> print(mendota_all1)
+A download_list containing 1 objects:
+Accessed from 2018-10-11 18:29h to 2018-10-11 18:29h.
+Datasets:
+ dataset.id site.name  long  lat age.younger age.older                  type
+       2742   Mendota -89.4 43.1          NA        NA pollen surface sample
+NULL
+> print(mendota_all2)
+A download_list containing 1 objects:
+Accessed from 2018-10-11 18:30h to 2018-10-11 18:30h.
+Datasets:
+ dataset.id site.name  long  lat age.younger age.older                  type
+       2742   Mendota -89.4 43.1          NA        NA pollen surface sample
+NULL
+> mendota_all1 <- get_download(mendota_site, verbose = FALSE)
+Fetching datasets for the site(s)
+Getting downloads:
+Warning in FUN(X[[i]], ...) :
+  This dataset has no defined default chronology.  Please use caution.
+Using the first chronology, No chronology as the default.
+> print(mendota_all1)
+A download_list containing 1 objects:
+Accessed from 2018-10-11 18:31h to 2018-10-11 18:31h.
+Datasets:
+ dataset.id site.name  long  lat age.younger age.older                  type
+       2742   Mendota -89.4 43.1          NA        NA pollen surface sample
+NULL
+> mendota_geochron <- get_geochron(mendota_site)
+Error in get_geochron.site(mendota_site) :
+  This set contains no geochronological datasets.  Use get_download instead.
+> samwell_geochron <- get_geochron(samwell_site)
+This dataset contains records that are not geochronological datasets.  Only geochronological datasets will be returned.
+API call was successful.
+API call was successful.
+API call was successful.
+> print(samwell_site)
+    site.name      long      lat elev
+ Samwell Cave -122.2379 40.91691  465
+A site object containing 1 sites and 8 parameters.
+> print(samwell_geochron)
+A geochronology_list containing 3 objects:
+Accessed from 2018-10-11 18:37h to 2018-10-11 18:37h.
+Geochronologies:
+    id    site.name      long      lat ages   min   max interval
+  9301 Samwell Cave -122.2379 40.91691    2 15360 17880   1260.0
+  9302 Samwell Cave -122.2379 40.91691    2 15360 17880   1260.0
+ 14261 Samwell Cave -122.2379 40.91691    6  2815 17680   2477.5
+NULL
+> samwell_pd <- get_download(14262)
+API call was successful. Returned record for Samwell Cave
+> str(samwell_pd[[1]])
+List of 6
+ $ dataset     :List of 6
+  ..$ site.data   :'data.frame':	1 obs. of  8 variables:
+  .. ..$ site.id    : int 3569
+  .. ..$ site.name  : chr "Samwell Cave"
+  .. ..$ long       : num -122
+  .. ..$ lat        : num 40.9
+  .. ..$ elev       : num 465
+  .. ..$ description: logi NA
+  .. ..$ long.acc   : num 0
+  .. ..$ lat.acc    : num 0
+  ..$ dataset.meta:'data.frame':	1 obs. of  5 variables:
+  .. ..$ dataset.id       : int 14262
+  .. ..$ dataset.name     : logi NA
+  .. ..$ collection.type  : chr "Excavation"
+  .. ..$ collection.handle: chr "SCPD"
+  .. ..$ dataset.type     : chr "vertebrate fauna"
+  ..$ pi.data     :'data.frame':	2 obs. of  2 variables:
+  .. ..$ ContactID  : int [1:2] 542 6527
+  .. ..$ ContactName: Factor w/ 2 levels "Blois, Jessica L.",..: 2 1
+  ..$ submission  :'data.frame':	1 obs. of  2 variables:
+  .. ..$ submission.date: POSIXct[1:1], format: "2014-07-03"
+  .. ..$ submission.type: chr "Last submission to Neotoma"
+  ..$ access.date : POSIXct[1:1], format: "2018-10-11 18:38:58"
+  ..$ site        :Classes ‘site’ and 'data.frame':	1 obs. of  8 variables:
+  .. ..$ site.id    : int 3569
+  .. ..$ site.name  : chr "Samwell Cave"
+  .. ..$ long       : num -122
+  .. ..$ lat        : num 40.9
+  .. ..$ elev       : num 465
+  .. ..$ description: logi NA
+  .. ..$ long.acc   : num 0
+  .. ..$ lat.acc    : num 0
+  ..- attr(*, "class")= chr [1:2] "dataset" "list"
+ $ sample.meta :'data.frame':	14 obs. of  11 variables:
+  ..$ depth          : num [1:14] 1 11 18.5 23.5 28 31.5 35.5 40.5 45.5 50.5 ...
+  ..$ thickness      : num [1:14] 10 10 5 5 4 3 5 5 5 5 ...
+  ..$ age.older      : num [1:14] 1505 4012 5266 6520 7523 ...
+  ..$ age            : num [1:14] 752 2758 4639 5893 7022 ...
+  ..$ age.younger    : num [1:14] 0 1505 4012 5266 6520 ...
+  ..$ chronology.name: chr [1:14] "Blois et al. 2010" "Blois et al. 2010" "Blois et al. 2010" "Blois et al. 2010" ...
+  ..$ age.type       : chr [1:14] "Calibrated radiocarbon years BP" "Calibrated radiocarbon years BP" "Calibrated radiocarbon years BP" "Calibrated radiocarbon years BP" ...
+  ..$ chronology.id  : int [1:14] 7510 7510 7510 7510 7510 7510 7510 7510 7510 7510 ...
+  ..$ sample.id      : int [1:14] 128901 128902 128903 128904 128905 128906 128907 128908 128909 128910 ...
+  ..$ dataset.id     : int [1:14] 14262 14262 14262 14262 14262 14262 14262 14262 14262 14262 ...
+  ..$ unit.name      : Factor w/ 14 levels "e1","e2","e3a",..: 1 2 3 4 5 6 7 8 9 10 ...
+ $ taxon.list  :'data.frame':	22 obs. of  6 variables:
+  ..$ taxon.name      : Factor w/ 22 levels "Carnivora","cf. Scapanus latimanus",..: 1 2 3 4 5 6 7 8 9 10 ...
+  ..$ variable.units  : Factor w/ 1 level "NISP": 1 1 1 1 1 1 1 1 1 1 ...
+  ..$ variable.element: Factor w/ 1 level "tooth": 1 1 1 1 1 1 1 1 1 1 ...
+  ..$ variable.context: logi [1:22] NA NA NA NA NA NA ...
+  ..$ taxon.group     : Factor w/ 1 level "Mammals": 1 1 1 1 1 1 1 1 1 1 ...
+  ..$ ecological.group: Factor w/ 6 levels "CARN","CHIR",..: 1 5 2 3 4 4 4 5 4 4 ...
+ $ counts      : num [1:14, 1:22] 1 0 0 0 0 0 0 0 0 0 ...
+  ..- attr(*, "dimnames")=List of 2
+  .. ..$ : chr [1:14] "128901" "128902" "128903" "128904" ...
+  .. ..$ : chr [1:22] "Carnivora" "cf. Scapanus latimanus" "Chiroptera" "Leporidae" ...
+ $ lab.data    : logi[1:14, 0 ]
+  ..- attr(*, "dimnames")=List of 2
+  .. ..$ : chr [1:14] "128901" "128902" "128903" "128904" ...
+  .. ..$ : NULL
+ $ chronologies:List of 1
+  ..$ Blois et al. 2010:'data.frame':	14 obs. of  7 variables:
+  .. ..$ age.older      : num [1:14] 1505 4012 5266 6520 7523 ...
+  .. ..$ age            : num [1:14] 752 2758 4639 5893 7022 ...
+  .. ..$ age.younger    : num [1:14] 0 1505 4012 5266 6520 ...
+  .. ..$ chronology.name: chr [1:14] "Blois et al. 2010" "Blois et al. 2010" "Blois et al. 2010" "Blois et al. 2010" ...
+  .. ..$ age.type       : chr [1:14] "Calibrated radiocarbon years BP" "Calibrated radiocarbon years BP" "Calibrated radiocarbon years BP" "Calibrated radiocarbon years BP" ...
+  .. ..$ chronology.id  : int [1:14] 7510 7510 7510 7510 7510 7510 7510 7510 7510 7510 ...
+  .. ..$ dataset.id     : int [1:14] 14262 14262 14262 14262 14262 14262 14262 14262 14262 14262 ...
+ - attr(*, "class")= chr [1:2] "download" "list"
+> str(samwell_pd[[3]])
+Error in samwell_pd[[3]] : subscript out of bounds
+> head(samwell_pd[[1]]$sample.meta)
+   depth thickness age.older     age age.younger   chronology.name                        age.type
+2    1.0        10    1504.6  752.31         0.0 Blois et al. 2010 Calibrated radiocarbon years BP
+21  11.0        10    4012.3 2758.47      1504.6 Blois et al. 2010 Calibrated radiocarbon years BP
+3   18.5         5    5266.2 4639.20      4012.3 Blois et al. 2010 Calibrated radiocarbon years BP
+4   23.5         5    6520.0 5893.10      5266.2 Blois et al. 2010 Calibrated radiocarbon years BP
+5   28.0         4    7523.1 7021.60      6520.0 Blois et al. 2010 Calibrated radiocarbon years BP
+6   31.5         3    8275.4 7899.30      7523.1 Blois et al. 2010 Calibrated radiocarbon years BP
+   chronology.id sample.id dataset.id unit.name
+2           7510    128901      14262        e1
+21          7510    128902      14262        e2
+3           7510    128903      14262       e3a
+4           7510    128904      14262       e3b
+5           7510    128905      14262       e4a
+6           7510    128906      14262       e4b
+> head(samwell_pd[[1]]$taxon.list)
+              taxon.name variable.units variable.element variable.context taxon.group
+1              Carnivora           NISP            tooth               NA     Mammals
+2 cf. Scapanus latimanus           NISP            tooth               NA     Mammals
+3             Chiroptera           NISP            tooth               NA     Mammals
+4              Leporidae           NISP            tooth               NA     Mammals
+5           Microtus sp.           NISP            tooth               NA     Mammals
+6            Neotoma sp.           NISP            tooth               NA     Mammals
+  ecological.group
+1             CARN
+2             SORI
+3             CHIR
+4             LAGO
+5             RODE
+6             RODE
+> head(samwell_pd[[1]]$counts)
+       Carnivora cf. Scapanus latimanus Chiroptera Leporidae Microtus sp. Neotoma sp. Peromyscus sp.
+128901         1                      1          3         3           38          32            151
+128902         0                      1          8         2           30          44            171
+128903         0                      2          5         0           15          28            136
+128904         0                      3         13         0           51          35            220
+128905         0                      2          9         1           40          28            203
+128906         0                      1          5         0           31          20            112
+       Sorex sp. Spermophilus beecheyi Tamias sp. Tamiasciurus douglasii Thomomys bottae
+128901         4                     1          1                      1               5
+128902         2                     1          0                      1               9
+128903         2                     2          0                      1               2
+128904         3                     4          1                      2               6
+128905         6                     4          1                      1               6
+128906         0                     1          0                      2               1
+       Thomomys sp. cf. Arborimus albipes Reithrodontomys cf. R. megalotis Sciurus griseus
+128901           14                     0                                0               0
+128902           18                     1                                1               1
+128903           23                     0                                1               1
+128904           42                     0                                1               3
+128905           25                     0                                0               1
+128906           19                     0                                0               1
+       Spermophilus lateralis Glaucomys cf. G. sabrinus Thomomys cf. T. mazama Artiodactyla
+128901                      0                         0                      0            0
+128902                      2                         0                      0            0
+128903                      0                         0                      0            0
+128904                      1                         2                      0            0
+128905                      0                         1                      2            0
+128906                      1                         0                      0            0
+       Myodes cf. M. californicus Aplodontia rufa
+128901                          0               0
+128902                          0               0
+128903                          0               0
+128904                          0               0
+128905                          0               0
+128906                          0               0
+> head(samwell_pd[[1]]$lab.data)
+
+128901
+128902
+128903
+128904
+128905
+128906
+
+
+Exercise Question 7
+mendota_ds <- get_dataset(1679)
+The API call was successful, you have returned 4 records.
+> mendota_data <- get_download(mendota_ds)
+API call was successful. Returnedrecord for Lake Mendota
+API call was successful. Returnedrecord for Lake Mendota
+API call was successful. Returnedrecord for Lake Mendota
+The dataset ID 8395 is associated with a geochronology object, not count data.
+API call was successful. Returnedrecord for Lake Mendota
+The dataset ID 8821 is associated with a geochronology object, not count data.
+Warning message:
+In get_download.default(datasetid, verbose = verbose) :
+ Some datasetids returned empty downloads, be aware that length(datasetid) is longer than the download_list.
+> mendota_pollen <- mendota_data[[1]]
+> mendota_pollen_p25 <- compile_taxa(mendota_data[[1]], list.name = "P25")
+Warning message:
+In aggregate.counts(object) :
+The following taxa could not be found in the existing conversion table:
+Amaranthaceae undiff.
+The following taxa could not be found in the existing conversion table:
+Angiospermae undiff. (herbs)
+The following taxa could not be found in the existing conversion table:
+Cyclachaena xanthiifolia-type
+The following taxa could not be found in the existing conversion table:
+Indeterminable
+The following taxa could not be found in the existing conversion table:
+Spermatophyta undiff. (aquatics)
+The following taxa could not be found in the existing conversion table:
+Sphagnum
+The following taxa could not be found in the existing conversion table:
+Typha/Sparganium
+The following taxa could not be found in the existing conversion table:
+Unknown (monolete)
+The following taxa could not be found in the existing conversion table:
+Lycopodium-type
+The following taxa could not be found in the existing conversion table:
+Pediastrum
+The following taxa could not be found in the existing conversion table:
+Pterid [... truncated]
+> library(rioja)
+This is rioja 0.9-15.1
+Attaching package: ‘rioja’
+> mendota_pollen_pct <- analogue::tran(x = mendota_pollen$counts, method = 'percent')
+> mendota_pollen_pct_nr <- mendota_pollen_pct[, colMeans(mendota_pollen_pct, na.rm = TRUE) > 2]
+> depths <- mendota_pollen$sample.meta$depth
+> mendota_plot <- strat.plot(mendota_pollen_pct_nr, yvar = depths, y.rev = TRUE, plot.line = FALSE, plot.poly = TRUE, plot.bar = TRUE, col.bar ="black", col.poly="maroon", col.poly.line="black", scale.percent=TRUE, xSpace=0.01, x.pc.lab=TRUE, x.pc.omit0=TRUE, las=2)
+
+
+Exercise Question 8
+picea_dec <- get_dataset(taxonname = "Picea*", datasettype = "pollen", loc = c(-98.6, 36.5, -66.1, 49.75), ageyoung = 12000, ageold=20000)
+The API call was successful, you have returned 271 records.
+> picea_dec_d1 <- get_download(picea_dec)
+> library(rworldmap)
+Loading required package: sp
+### Welcome to rworldmap ###
+For a short introduction type : 	 vignette('rworldmap')
+> map <- getMap
+> plot(picea_dec)
+> plot(map, add = TRUE)
+> picea_compiled <- compile_downloads(picea_dec_d1)
+> all_taxa <- do.call(rbind.data.frame, lapply(picea_dec_d1, function(x)x$taxon.list[,1:6]))
+> all_taxa <- all_taxa[!duplicated(all_taxa),]
+> good_cols <- c(1:10, which(colnames(picea_compiled) %in% gsub("[]|[[:punct:]]", ".", all_taxa[all_taxa$ecological.group %in% c("TRSH", "UPHE"),1])))
+> picea_pct <- picea_compiled[,11:ncol(picea_compiled)] / rowSums(picea_compiled[,11:ncol(picea_compiled)], na.rm = TRUE)
+> picea_only <- rowSums(picea_pct[grep("Picea", colnames(picea_pct))], na.rm = TRUE)
+> age_col <- grep("^age", colnames(picea_compiled))
+> picea_all <- data.frame(ages = rowMeans(picea_compiled[,age_col], na.rm = TRUE), prop = picea_only)
+> plot(picea_all, col = rgb(0.1, 0.1, 0.1, 0.3), pch = 19, cex = 0.4, xlim = c(0,20000), ylab = "Proportion of Picea", xlab = "Years Before Present")
+> plot(picea_all, col = rgb(0.1, 0.1, 0.1, 0.3), rgb(1,0,0,3))[picea_compiled$date.type == "Radiocarbon years BP") +1], pch = 19, cex = 0.4, xlim = c(0,20000), ylab = "Proportion of Picea", xlab = "Years Before Present")
+Error: unexpected ')' in "plot(picea_all, col = rgb(0.1, 0.1, 0.1, 0.3), rgb(1,0,0,3))[picea_compiled$date.type == "Radiocarbon years BP")"
+> plot(picea_all, col = rgb(0.1, 0.1, 0.1, 0.3), rgb(1,0,0,3))[(picea_compiled$date.type == "Radiocarbon years BP") +1], pch = 19, cex = 0.4, xlim = c(0,20000), ylab = "Proportion of Picea", xlab = "Years Before Present")
+Error: unexpected ',' in "plot(picea_all, col = rgb(0.1, 0.1, 0.1, 0.3), rgb(1,0,0,3))[(picea_compiled$date.type == "Radiocarbon years BP") +1],"
+> plot(picea_all, col = rgb(0.1, 0.1, 0.1, 0.3), rgb(1,0,0,3))[(picea_compiled$date.type == "Radiocarbon years BP") +1],pch = 19, cex = 0.4, xlim = c(0,20000), ylab = "Proportion of Picea", xlab = "Years Before Present")
+Error: unexpected ',' in "plot(picea_all, col = rgb(0.1, 0.1, 0.1, 0.3), rgb(1,0,0,3))[(picea_compiled$date.type == "Radiocarbon years BP") +1],"
+> #uable to get this to work. . . not sure what is going on here. However, I was able to get a plot from the first plotting instructions.
+
+
+Exercise Question 9
+one_slice <- get_dataset(taxonname = "Picea*", loc = c(-98.6, 36.5, -66.1, 49.75), ageyoung = 0, ageold = 21000)
+The API call was successful, you have returned 663 records.
+
+> increment <- seq(from = 0, to = 21000, by = 500)
+> one_slice <- get_dataset(taxonname = "Picea*", loc = c(-98.6, 36.5, -66.1, 49.75), ageyoung = increment[1], ageold = increment[2])
+The API call was successful, you have returned 490 records.
+
+> for(i in 1:42){ one_slice <- get_dataset(taxonname = "Picea*", datasettype = "pollen", loc = c(-98.6, 36.5, -66.1, 49.75), ageyoung = increment[1], ageold = increment[i+1]) }
+Error in is.response(x) : Recv failure: Connection was reset
+> for(i in 1:42){ one_slice <- get_dataset(taxonname = "Picea*", datasettype = "pollen", loc = c(-98.6, 36.5, -66.1, 49.75), ageyoung = increment[1], ageold = increment[i+1]) }
+The API call was successful, you have returned 490 records.
+
+The API call was successful, you have returned 528 records.
+
+The API call was successful, you have returned 541 records.
+
+The API call was successful, you have returned 550 records.
+
+The API call was successful, you have returned 557 records.
+
+The API call was successful, you have returned 561 records.
+
+The API call was successful, you have returned 566 records.
+
+The API call was successful, you have returned 569 records.
+
+The API call was successful, you have returned 572 records.
+
+The API call was successful, you have returned 577 records.
+
+The API call was successful, you have returned 580 records.
+
+The API call was successful, you have returned 583 records.
+
+The API call was successful, you have returned 587 records.
+
+The API call was successful, you have returned 590 records.
+
+The API call was successful, you have returned 595 records.
+
+The API call was successful, you have returned 597 records.
+
+The API call was successful, you have returned 603 records.
+
+The API call was successful, you have returned 607 records.
+
+The API call was successful, you have returned 616 records.
+
+The API call was successful, you have returned 621 records.
+
+The API call was successful, you have returned 630 records.
+
+The API call was successful, you have returned 639 records.
+
+The API call was successful, you have returned 644 records.
+
+The API call was successful, you have returned 648 records.
+
+The API call was successful, you have returned 649 records.
+
+The API call was successful, you have returned 650 records.
+
+The API call was successful, you have returned 651 records.
+
+The API call was successful, you have returned 652 records.
+
+The API call was successful, you have returned 652 records.
+
+The API call was successful, you have returned 654 records.
+
+The API call was successful, you have returned 654 records.
+
+The API call was successful, you have returned 655 records.
+
+The API call was successful, you have returned 655 records.
+
+The API call was successful, you have returned 655 records.
+
+The API call was successful, you have returned 655 records.
+
+The API call was successful, you have returned 655 records.
+
+The API call was successful, you have returned 655 records.
+
+The API call was successful, you have returned 655 records.
+
+The API call was successful, you have returned 656 records.
+
+The API call was successful, you have returned 656 records.
+
+The API call was successful, you have returned 657 records.
+
+The API call was successful, you have returned 657 records.
+
+> site_nos <- rep(NA, 42)
+> for (i in 1:42) {}
+> site_nos <- rep(NA, 42)
+> for (i in 1:42) {
++     one_slice <- get_dataset(taxonname = "Picea*", datasettype = "pollen",
++                              loc = c(-98.6, 36.5, -66.1, 49.75),
++                              ageyoung = increment[1]
++                              ageold = increment[i + 1])
+Error: unexpected symbol in:
+"                             ageyoung = increment[1]
+                             ageold"
+>                             site_nos[i] <- length(one_slice) }
+Error: unexpected '}' in "                            site_nos[i] <- length(one_slice) }"
+>
+> }
+Error: unexpected '}' in "}"
+> site_nos <- rep(NA, 42)
+> for (i in 1:42) {
++     one_slice <- get_dataset(taxonname = "Picea*", datasettype = "pollen",
++                              loc = c(-98.6, 36.5, -66.1, 49.75),
++                              ageyoung = increment[1],
++                              ageold = increment[i + 1])
++                             site_nos[i] <- length(one_slice) }
+The API call was successful, you have returned 490 records.
+
+The API call was successful, you have returned 528 records.
+
+The API call was successful, you have returned 541 records.
+
+The API call was successful, you have returned 550 records.
+
+The API call was successful, you have returned 557 records.
+
+The API call was successful, you have returned 561 records.
+
+The API call was successful, you have returned 566 records.
+
+The API call was successful, you have returned 569 records.
+
+The API call was successful, you have returned 572 records.
+
+The API call was successful, you have returned 577 records.
+
+The API call was successful, you have returned 580 records.
+
+The API call was successful, you have returned 583 records.
+
+The API call was successful, you have returned 587 records.
+
+The API call was successful, you have returned 590 records.
+
+The API call was successful, you have returned 595 records.
+
+The API call was successful, you have returned 597 records.
+
+The API call was successful, you have returned 603 records.
+
+The API call was successful, you have returned 607 records.
+
+The API call was successful, you have returned 616 records.
+
+The API call was successful, you have returned 621 records.
+
+The API call was successful, you have returned 630 records.
+
+The API call was successful, you have returned 639 records.
+
+The API call was successful, you have returned 644 records.
+
+The API call was successful, you have returned 648 records.
+
+The API call was successful, you have returned 649 records.
+
+The API call was successful, you have returned 650 records.
+
+The API call was successful, you have returned 651 records.
+
+The API call was successful, you have returned 652 records.
+
+The API call was successful, you have returned 652 records.
+
+The API call was successful, you have returned 654 records.
+
+The API call was successful, you have returned 654 records.
+
+The API call was successful, you have returned 655 records.
+
+The API call was successful, you have returned 655 records.
+
+The API call was successful, you have returned 655 records.
+
+The API call was successful, you have returned 655 records.
+
+The API call was successful, you have returned 655 records.
+
+The API call was successful, you have returned 655 records.
+
+The API call was successful, you have returned 655 records.
+
+The API call was successful, you have returned 656 records.
+
+The API call was successful, you have returned 656 records.
+
+The API call was successful, you have returned 657 records.
+
+The API call was successful, you have returned 657 records.
+
+>
+> }
+Error: unexpected '}' in "}"
+> plot(increment[-1], site_nos)
+> site_all <- rep(NA, 42)
+> for(i in 1:42) {
++     all_slice <- get_dataset(datasettype = "pollen",
++                              loc = c(-98.6, 36.5, -66.1, 49.75),)
++ }
+The API call was successful, you have returned 762 records.
+
+The API call was successful, you have returned 762 records.
+
+
+> plot(increment[-1], site_nos)
+> site_all <- rep(NA, 42)
+> for(i in 1:42) {
++     all_slice <- get_dataset(datasettype = "pollen",
++                              loc = c(-98.6, 36.5, -66.1, 49.75),
++                              ageyoung = increment[1],
++                              ageold = increment[i + 1])
++     site_all[i] <-length(all_slice)
++ }
+The API call was successful, you have returned 539 records.
+
+The API call was successful, you have returned 571 records.
+
+The API call was successful, you have returned 576 records.
+
+The API call was successful, you have returned 583 records.
+
+The API call was successful, you have returned 591 records.
+
+The API call was successful, you have returned 594 records.
+
+The API call was successful, you have returned 597 records.
+
+The API call was successful, you have returned 602 records.
+
+The API call was successful, you have returned 604 records.
+
+The API call was successful, you have returned 608 records.
+
+The API call was successful, you have returned 610 records.
+
+The API call was successful, you have returned 614 records.
+
+The API call was successful, you have returned 618 records.
+
+The API call was successful, you have returned 622 records.
+
+The API call was successful, you have returned 625 records.
+
+The API call was successful, you have returned 627 records.
+
+The API call was successful, you have returned 630 records.
+
+The API call was successful, you have returned 633 records.
+
+The API call was successful, you have returned 644 records.
+
+The API call was successful, you have returned 648 records.
+
+The API call was successful, you have returned 656 records.
+
+The API call was successful, you have returned 660 records.
+
+The API call was successful, you have returned 665 records.
+
+The API call was successful, you have returned 668 records.
+
+The API call was successful, you have returned 669 records.
+
+The API call was successful, you have returned 670 records.
+
+The API call was successful, you have returned 671 records.
+
+The API call was successful, you have returned 672 records.
+
+The API call was successful, you have returned 672 records.
+
+The API call was successful, you have returned 674 records.
+
+The API call was successful, you have returned 674 records.
+
+The API call was successful, you have returned 675 records.
+
+The API call was successful, you have returned 675 records.
+
+The API call was successful, you have returned 675 records.
+
+The API call was successful, you have returned 675 records.
+
+The API call was successful, you have returned 675 records.
+
+The API call was successful, you have returned 675 records.
+
+The API call was successful, you have returned 675 records.
+
+The API call was successful, you have returned 676 records.
+
+The API call was successful, you have returned 676 records.
+
+The API call was successful, you have returned 677 records.
+
+The API call was successful, you have returned 677 records.
+
+> plot(increment[-43], site_nos/site_all)
+> plot(increment[-21], site_nos/site_all)
+Warning messages:
+1: In png(filename = "C:/Users/britt/Documents/Geog920/Geography523/Wk5_RNeotoma/Assignments/BHupp/site_nos/site_all.png",  :
+  unable to open file 'C:/Users/britt/Documents/Geog920/Geography523/Wk5_RNeotoma/Assignments/BHupp/site_nos/site_all.png' for writing
+2: In png(filename = "C:/Users/britt/Documents/Geog920/Geography523/Wk5_RNeotoma/Assignments/BHupp/site_nos/site_all.png",  :
+  opening device failed
+3: In png(filename = "C:/Users/britt/Documents/Geog920/Geography523/Wk5_RNeotoma/Assignments/BHupp/site_nos/site_all.png",  :
+  unable to open file 'C:/Users/britt/Documents/Geog920/Geography523/Wk5_RNeotoma/Assignments/BHupp/site_nos/site_all.png' for writing
+4: In png(filename = "C:/Users/britt/Documents/Geog920/Geography523/Wk5_RNeotoma/Assignments/BHupp/site_nos/site_all.png",  :
+  opening device failed
+> plot(increment[-43], site_nos/site_all)
+> site_lat <- rep(NA, 42)
+> for (i in 1:42) {
++     all_site <- get_site(get_dataset(taxonname = "Picea*",
++                                      datasettype = "pollen",
++                                      loc = c(-98.6, 36.5, -66.1, 49.75),
++                                      ageyoung = increment[i],
++                                      ageold = increment[i + 1]))
++     site_lat[i] <- mean(all_site$lat)
++
++
++ }
+The API call was successful, you have returned 490 records.
+
+The API call was successful, you have returned 373 records.
+
+The API call was successful, you have returned 342 records.
+
+The API call was successful, you have returned 308 records.
+
+The API call was successful, you have returned 285 records.
+
+The API call was successful, you have returned 270 records.
+
+The API call was successful, you have returned 257 records.
+
+The API call was successful, you have returned 245 records.
+
+The API call was successful, you have returned 238 records.
+
+The API call was successful, you have returned 232 records.
+
+The API call was successful, you have returned 226 records.
+
+The API call was successful, you have returned 235 records.
+
+The API call was successful, you have returned 230 records.
+
+The API call was successful, you have returned 205 records.
+
+The API call was successful, you have returned 233 records.
+
+The API call was successful, you have returned 230 records.
+
+The API call was successful, you have returned 244 records.
+
+The API call was successful, you have returned 217 records.
+
+The API call was successful, you have returned 248 records.
+
+The API call was successful, you have returned 235 records.
+
+The API call was successful, you have returned 263 records.
+
+The API call was successful, you have returned 234 records.
+
+The API call was successful, you have returned 249 records.
+
+The API call was successful, you have returned 206 records.
+
+The API call was successful, you have returned 207 records.
+
+The API call was successful, you have returned 221 records.
+
+The API call was successful, you have returned 182 records.
+
+The API call was successful, you have returned 141 records.
+
+The API call was successful, you have returned 101 records.
+
+The API call was successful, you have returned 88 records.
+
+The API call was successful, you have returned 87 records.
+
+The API call was successful, you have returned 67 records.
+
+The API call was successful, you have returned 67 records.
+
+The API call was successful, you have returned 49 records.
+
+The API call was successful, you have returned 38 records.
+
+The API call was successful, you have returned 33 records.
+
+The API call was successful, you have returned 25 records.
+
+The API call was successful, you have returned 37 records.
+
+The API call was successful, you have returned 29 records.
+
+The API call was successful, you have returned 18 records.
+
+The API call was successful, you have returned 18 records.
+
+The API call was successful, you have returned 12 records.
+
+> plot(increment[-43], site_nos/site_all)
+# From this plot we can see that Picea was consistently abundant for many years and then hit a specific point in time where it began to gradually decline. 
