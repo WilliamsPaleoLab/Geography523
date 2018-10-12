@@ -1,0 +1,264 @@
+---
+title: "G920_Lab5_Fastovich"
+author: "David Fastovich"
+date: "October 5, 2018"
+output: html_document
+---
+
+```{r echo=FALSE}
+library(neotoma)
+library(rioja)
+library(rworldmap)
+```
+
+#### Question 1
+
+`http://api.neotomadb.org/v1/data/sites?sitename=*tulane*`
+
+Returns:
+
+`{
+success: 1,
+data: [
+{
+LongitudeWest: -81.50634,
+SiteID: 2570,
+SiteName: "Lake Tulane",
+Altitude: 32,
+LongitudeEast: -81.50045,
+SiteDescription: "Sinkhole lake on the Lake Wales Ridge. Native vegetation was Florida srcub with Pinus elliotti and Pinus clausa, but lake is now in the town of Avon Park. Lake has two basins, north and south.",
+LatitudeNorth: 27.58973,
+LatitudeSouth: 27.58253
+}
+]
+}`
+
+`http://api.neotomadb.org/v1/data/sites?sitename=*spicer*`
+
+Returns:
+
+`{
+success: 1,
+data: [
+{
+LongitudeWest: -86.52289,
+SiteID: 13350,
+SiteName: "Spicer Lake",
+Altitude: 242,
+LongitudeEast: -86.52127,
+SiteDescription: "Spicer Lake is located in New Carlisle, St. Joseph County, northern Indiana. It is a kettle lake formed by stagnant ice embedded in the glacial till left behind when the Lake Michigan Lobe of the Laurentide Ice Sheet retreated into Indiana ca. 15,000 years ago. Much of the kettle has filled in, leaving 5 ha of open water, surrounded by swamp and wetland forests.",
+LatitudeNorth: 41.75809,
+LatitudeSouth: 41.75667
+}
+]
+}`
+
+#### Question 2
+
+`http://api.neotomadb.org/v1/data/datasets?siteid=2570`
+
+Returns:
+
+`{
+success: 1,
+data: [
+{
+DatabaseName: "North American Pollen Database",
+DOI: null,
+AgeOldest: null,
+CollUnitName: null,
+CollUnitHandle: "TULANE",
+Site: {
+LongitudeWest: -81.50634,
+SiteID: 2570,
+SiteName: "Lake Tulane",
+Altitude: 32,
+LongitudeEast: -81.50045,
+SiteDescription: "Sinkhole lake on the Lake Wales Ridge. Native vegetation was Florida srcub with Pinus elliotti and Pinus clausa, but lake is now in the town of Avon Park. Lake has two basins, north and south.",
+LatitudeNorth: 27.58973,
+LatitudeSouth: 27.58253,
+SiteNotes: null
+},
+`
+Output continues, but for the sake of readability I only included the first set of values returned from the API call.
+
+`http://api.neotomadb.org/v1/data/downloads/2865`
+
+Returns:
+
+`{
+success: 1,
+data: [
+{
+CollUnitType: "Modern",
+DatasetName: null,
+DatabaseName: "North American Pollen Database",
+Samples: [
+{
+SampleName: null,
+AnalysisUnitDepth: 0,
+AnalysisUnitName: null,
+SampleID: 54312,
+SampleData: [
+{
+TaxonName: "Unknown",
+VariableUnits: "NISP",
+VariableElement: "pollen/spore",
+VariableContext: null,
+TaxaGroup: "Unidentified palynomorphs",
+Value: 3,
+EcolGroupID: "UNID"
+},`
+Output continues, but for the sake of readability I only included the first set of values returned from the API call.
+
+#### Question 3
+
+`http://api.neotomadb.org/v1/dbtables/Geochronology?limit=50&offset=0`
+
+Returns:
+`{
+success: 1,
+data: [
+{
+MaterialDated: "peat",
+Age: 3540,
+SampleID: 108001,
+GeochronID: 1,
+RecDateModified: "2014-02-28T04:51:49",
+LabNumber: "WAT-2088",
+ErrorOlder: 70,
+AgeTypeID: 4,
+Delta13C: null,
+ErrorYounger: 70,
+GeochronTypeID: 2,
+Notes: null,
+Infinite: false,
+RecDateCreated: "2013-09-30T14:02:50"
+},`
+
+Output continues, but for the sake of readability I only included the first set of values returned from the API call.
+
+#### Question 4
+```{r}
+clear <- get_site(sitename = "%clear%")
+```
+
+48 sites have the name **clear** in them.
+
+#### Question 5
+```{r}
+WI.sites <- get_site(gpid = "Wisconsin")
+MN.sites <- get_site(gpid = "Minnesota")
+```
+
+Minnesota (518 records) has more records than Wisconsin (459 records).
+
+#### Question 6
+```{r}
+devil.sites <- get_site("Devil%")
+devil.sites # Looks like the Devil's Lake we're interested in is the second one
+devil.sites$site.id[2]
+devil.data <- get_dataset(devil.sites$site.id[2])
+devil.data
+```
+There are five datasets for Devil's Lake
+
+#### Question 7
+```{r}
+tul.site <- get_site("*tulane*")
+tul.dataset <- get_dataset(tul.site, datasettype = "pollen")
+tul.down <- get_download(tul.dataset)
+tul.poll <- tul.down$`19620`$counts
+tul.p25 <- compile_taxa(tul.poll, list.name = "P25")
+tul.p25.perc <- (tul.p25/rowSums(tul.p25))*100
+tul.p25.perc <- tul.p25.perc[, colMeans(tul.p25.perc) > 2]
+strat.plot(d = tul.p25.perc, yvar = tul.down$`19620`$sample.meta$depth)
+```
+
+#### Question 8
+```{r}
+# Finding all datasets with Picea that fall within the the time window of interest
+pic.dec <- get_dataset(taxonname = "Picea*",
+                       datasettype = "pollen",
+                       loc = c(-98.6, 36.5, -66.1, 49.75),
+                       ageyoung = 11000, ageold = 21000)
+
+# Downloading the releveant data
+pic.dec.down <- get_download(pic.dec)
+
+# Making a map of the sites
+map <- getMap()
+plot(pic.dec)
+plot(map, add = TRUE)
+
+pic.compiled <- compile_downloads(pic.dec.down)
+
+# Extract all taxon tables from the original download object  
+all.taxa <- do.call(rbind.data.frame, lapply(pic.dec.down, function(x)x$taxon.list[,1:6]))
+ 
+# Remove duplicate names
+all.taxa <- all.taxa[!duplicated(all.taxa),]
+ 
+# Limit the taxa to everything that is a tree or shrub, or upland herbs
+ 
+good.cols <- c(1:10, which(colnames(pic.compiled) %in%
+      gsub("[ ]|[[:punct:]]", ".",
+      all.taxa[all.taxa$ecological.group %in%
+      c("TRSH", "UPHE"),1])))
+ 
+# Take just those trees, shrubs & herbs and transform counts to proportions:
+pic.compiled <- pic.compiled[ ,good.cols]
+pic.pct <- pic.compiled[,11:ncol(pic.compiled)] / rowSums(pic.compiled[,11:ncol(pic.compiled)], na.rm = TRUE)
+pic.only <- rowSums(pic.pct[,grep("Picea", colnames(pic.pct))], na.rm = TRUE)
+
+# Getting chron data and plotting
+age.cols <- grep("^age", colnames(pic.compiled))
+pic.all <- data.frame(ages = rowMeans(pic.compiled[,age.cols], na.rm = TRUE), prop = pic.only)
+
+# Plot in years before present
+plot(pic.all, 
+     col = rgb(0.1, 0.1, 0.1, 0.3), 
+     pch = 19, cex = 0.4, 
+     xlim = c(0, 20000), 
+     ylab = "Proportion of Picea", 
+     xlab = "Years Before Present")
+
+# Plot in radiocarbon years
+plot(pic.all, 
+     col = c(rgb(0.1, 0.1, 0.1, 0.3), 
+     rgb(1, 0, 0, 0.3))[(pic.compiled$date.type == "Radiocarbon years BP") + 1],
+     pch = 19, 
+     cex = 0.4,
+     xlim = c(0, 20000),
+     ylab = "Proportion of Picea", xlab = "Years Before Present")
+```
+
+#### Question 9
+```{r}
+increment <- seq(from = 0, to = 21000, by = 500)
+site_nos <- rep(NA, 43) 
+
+# Loop to pull data for Picea pollen percentages from 0 to 21ka
+for (i in 1:42) { 
+  one_slice <- get_dataset(taxonname = 'Picea*', 
+                           datasettype = 'pollen', 
+                           loc = c(-98.6, 36.5, -66.1, 49.75), 
+                           ageyoung = increment[i], 
+                           ageold = increment[i + 1])
+  site_nos[i] <- length(one_slice) 
+}
+
+plot(increment, site_nos) # Total counts of sites with Picea in the upper midwest changing over time
+
+# Pulling all pollen data for sites in this same region to turn the numbers from the previous loop into proporitons for plotting.
+site_all <- rep(NA, 42)
+for (i in 1:42) {
+  all_slice <- get_dataset(datasettype = 'pollen',
+                           loc = c(-98.6, 36.5, -66.1, 49.75),
+                           ageyoung = increment[i],
+                           ageold = increment[i + 1])
+  site_all[i] <- length(all_slice)
+}
+
+plot(increment, site_nos/site_all) # Proportion of sites with Picea in the upper midwest over time
+```
