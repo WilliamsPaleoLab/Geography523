@@ -1,0 +1,228 @@
+---
+title: "Lab 4 - George"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## APIs
+
+**Question 1**
+
+This API call finds sites at a minimum of 5000 meters, which only applies to 7 sites. This makes sense, because it's more difficult to core lakes at so high an elevation.
+<http://api.neotomadb.org/v1/data/sites?altmin=5000>
+
+This API call finds all sites in Australia, which returned 18 results. I thought it was interesting that most of the lakes were glacial, which made me realize how little I know about the glacial history of the Southern hemisphere.
+<http://api.neotomadb.org/v1/data/sites?gpid=303>
+
+
+**Question 2**
+
+This API call finds all sites in Wisconsin with *Picea.* 
+<http://api.neotomadb.org/v1/data/datasets?gpid=9227&taxonname=*picea*>
+
+This API call downloads the pollen dataset for Devils Lake, WI.
+<http://api.neotomadb.org/v1/data/downloads/684>
+
+
+**Question 3**
+
+This API call returns 50 records from the Geochronology table
+<http://api.neotomadb.org/v1/dbtables/Geochronology?limit=50>
+
+## Importing Neotoma Data into R and *neotoma*
+
+```{r message=FALSE, warning = FALSE, results="hide"}
+# Installs and loads necessary packages
+install.packages('neotoma', repos='http://cran.us.r-project.org')
+install.packages("analogue", repos='http://cran.us.r-project.org')
+install.packages("rioja", repos='http://cran.us.r-project.org')
+install.packages("rworldmap", repos='http://cran.us.r-project.org')
+library(neotoma)
+library(analogue)
+library(rioja)
+library(rworldmap)
+```
+
+
+**Question 4**
+
+```{r echo=TRUE, message=FALSE, warning = FALSE}
+# 
+get_site(sitename='*clear*')
+```
+
+There are 48 sites with the name 'clear' in them.
+
+**Question 5**
+
+```{r echo=TRUE, message=FALSE, warning = FALSE}
+WI_sites <- get_site(gpid = 9227)
+MN_sites <- get_site(gpid = 7467)
+```
+Minnesota (518 records) has more sites than Wisconsin (459 records).
+
+
+**Question 6** 
+```{r echo=TRUE}
+# Finds site with name 'devil*' in Wisconsin and downloads Devil's lake data
+devils_lake <- get_site(sitename = 'devil*', gpid = 9227)
+devilslake.meta.dataset  <- get_dataset(devils_lake)
+# Prints Devil's Lake metadata
+print(devilslake.meta.dataset)
+```
+There are 5 types of datasets at Devil's Lake, WI.
+
+**Question 7**
+
+```{r message = FALSE, warning = FALSE}
+# Gets list of available datasets from Jemima Lake in MA 
+jemima_dataset <- get_dataset(10026)
+
+# Stores data associated with each Jemima Lake dataset
+jemima_data <- get_download(jemima_dataset)
+
+# Assigns the first (and only) dataset, which is pollen, to jemima_pollen
+jemima_pollen <- jemima_data[[1]]
+
+# Compiles Jemima Lake pollen data using the p25 list
+jemima_pollen_p25 <- compile_taxa(jemima_data[[1]], list.name = "P25")
+
+# Checks which pollen has been converted by looking at new taxon table
+jemima_pollen_p25$taxon.list[,c("compressed", "taxon.name")]
+
+#rioja plot process
+# Divides raw pollen counts by total pollen count and multiplies by 100 to get percentages
+jemima_pollen_p25[is.na(jemima_pollen_p25)] <- 0
+percentages <- 100*(jemima_pollen_p25$counts/rowSums(jemima_pollen_p25$counts))
+
+# Selects only taxa with at least two peaks of at least 2%
+inclusion.criterion <- apply(percentages,2,function(x) (sum(x>2))>1)
+percentages_clean <- percentages[,inclusion.criterion]
+
+#Defines y-axis using depth data from jemima pollen 
+depths <- as.numeric(as.character(unlist(jemima_pollen_p25$sample.meta$depth)))
+
+# Creates stratigraphic diagram of taxa with two peaks of at least 3%
+rioja::strat.plot(percentages_clean, yvar = depths, ylabel = "Depth (cm)")
+
+```
+
+**Question 8**
+```{r echo=TRUE, message=FALSE, warning = FALSE}
+#assigns getMap function to map
+map <- getMap()
+
+# Search for datasets with Picea in them
+pic_dec <- get_dataset(taxonname = "Picea*",
+                       datasettype = "pollen",
+                       loc = c(-98.6, 36.5, -66.1, 49.75),
+                       ageyoung = 4500, ageold = 6000)
+# Download the datasets (this will take a few minutes)
+pic_dec_dl <- get_download(pic_dec)
+
+# Plot Picea data on map
+plot(pic_dec_dl) 
+plot(map, add=TRUE)
+
+# combines records
+pic_compiled <- compile_downloads(pic_dec_dl)
+
+# Extract all taxon tables from the original download object  
+all_taxa <- do.call(rbind.data.frame, lapply(pic_dec_dl, function(x)x$taxon.list[,1:6]))
+
+# Remove duplicate names
+all_taxa <- all_taxa[!duplicated(all_taxa),]
+
+# Limit the taxa to everything that is a tree or shrub, or upland herbs
+good_cols <- c(1:10, which(colnames(pic_compiled) %in%
+      gsub("[ ]|[[:punct:]]", ".",
+      all_taxa[all_taxa$ecological.group %in%
+      c("TRSH", "UPHE"),1])))
+
+# Take just those trees, shrubs & herbs and transform counts to proportions:
+pic_compiled <- pic_compiled[ ,good_cols]
+
+pic_pct <- pic_compiled[,11:ncol(pic_compiled)] / rowSums(pic_compiled[,11:ncol(pic_compiled)], na.rm = TRUE)
+
+pic_only <- rowSums(pic_pct[,grep("Picea", colnames(pic_pct))], na.rm = TRUE)
+
+# Pull ages from the compiled_downloads object by taking the rowMeans of the age columns
+age_cols <- grep("^age", colnames(pic_compiled))
+
+picea_all <- data.frame(ages = rowMeans(pic_compiled[,age_cols], na.rm = TRUE),
+                          prop = pic_only)
+# plot picea against age
+plot(picea_all, col = rgb(0.1, 0.1, 0.1, 0.3), pch = 19, cex = 0.4,
+     xlim = c(0, 20000),
+     ylab = "Proportion of Picea",          xlab = "Years Before Present")
+
+# separates sites with radiocarbon-year chronologies from other date types
+plot(picea_all,
+     col = c(rgb(0.1, 0.1, 0.1, 0.3),
+             rgb(1, 0, 0, 0.3))[(pic_compiled$date.type == "Radiocarbon years BP") + 1],
+     pch = 19, cex = 0.4,
+     xlim = c(0, 20000),
+     ylab = "Proportion of Picea", xlab = "Years Before Present")
+```
+
+
+**Question 9**
+
+```{r echo = TRUE}
+# returns set of sites within this bounding box for this one time interval (0 to 500 yr BP) 
+one_slice <- get_dataset(taxonname='Picea*', loc=c(-110, 40, -80, 50), ageyoung = 0, ageold = 500)
+# creates vector of values from 0-21,000, increasing by 1000
+increment <- seq(from = 0, to = 21000, by = 1000)
+
+# Replace parameters in original call with the first element of increment variable
+one_slice <- get_dataset(taxonname = 'Picea*', 
+                         loc = c(-110, 40, -80, 50), 
+                         ageyoung = increment[1], 
+                         ageold = increment[2])
+
+# increase the values of the indices so that we keep getting new time slices using a for loop. Each time this loop iterates, the time interval defined by ageyounger and ageolder will increment by one
+for(i in 1:21){   
+  one_slice <- get_dataset(taxonname = 'Picea*', 
+                           datasettype = 'pollen', 
+                           loc = c(-110, 40, -80, 50), 
+                           ageyoung = increment[i], 
+                           ageold = increment[i + 1]) 
+  }
+
+# create a new variable, filled with 20 NA values, ready to store data from each iteration of the loop, defines increment
+site_nos <- rep(NA, 21)
+increment <- seq(from = 0, to = 21000, by = 1000)
+
+# Records # of records for each 1000 year period from 21,000-0.
+for (i in 1:20) {one_slice <- get_dataset(taxonname = 'Picea*', 
+                                          datasettype = 'pollen', 
+                                          loc = c(-110, 40, -80, 50), 
+                                          ageyoung = increment[i], 
+                                          ageold = increment[i + 1])   
+site_nos[i] <- length(one_slice) 
+  }
+
+
+# plot the values and take a look at them
+plot(increment[-1], site_nos, main = "Picea in the Upper Midwest", xlab = "Years Before Present", ylab = "Number of Sites")
+```
+
+```{r message=FALSE, warning = FALSE}
+# extracts latitude info
+site_lat <- rep(NA, 20)
+for (i in 1:20) {
+  all_site <- get_site(get_dataset(taxonname = 'Picea*', 
+                                   datasettype = 'pollen', 
+                                   loc = c(-110, 40, -80, 50), 
+                                   ageyoung = increment[i], 
+                                   ageold = increment[i + 1])) 
+site_lat[i] <- mean(all_site$lat)
+}
+
+```
+Picea steadily increases from 20,000 years ago to about 12,000 years ago in the Upper Midwest. After a plateau of about seven thousand years, it continues to increase until present. 
