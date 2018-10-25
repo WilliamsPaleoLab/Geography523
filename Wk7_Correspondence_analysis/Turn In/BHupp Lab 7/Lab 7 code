@@ -1,0 +1,98 @@
+Correspondence Analysis and Redundancy Analysis
+Brittany Hupp
+
+QUESTION 2
+#load packages and arctic dataset
+library(vegan)
+library(palaeoSig)
+data("arctic.pollen")
+View(arctic.pollen)
+
+#Run CA with sqrt transform
+arctic.pol.sqrt <- sqrt(arctic.pollen)
+arctic.pol.ca <- cca(arctic.pol.sqrt)
+
+#Make CA plot and screeplot
+plot(arctic.pol.ca)
+screeplot(arctic.pol.ca, bstick = TRUE)
+
+#Retrieve data to add ordination surface to the CA plot
+data("arctic.env")
+july_temp <- arctic.env$tjul
+
+#Add ordination surface
+ordisurf(arctic.pol.ca, july_temp, add = TRUE)
+
+Family: gaussian
+Link function: identity
+
+Formula:
+y ~ s(x1, x2, k = 10, bs = "tp", fx = FALSE)
+
+Estimated degrees of freedom:
+8.84  total = 9.84
+
+REML score: 1699.243
+
+
+#Now to repeat all steps after removing rare species (<2%)
+arctic_pol_pct_nr <- arctic.pollen[, colMeans(arctic.pollen, na.rm = TRUE) > 2]
+arctic.pol.nr.sqrt <- sqrt(arctic_pol_pct_nr)
+arctic.pol.nr.ca <- cca(arctic.pol.nr.sqrt)
+plot(arctic.pol.nr.ca)
+screeplot(arctic.pol.nr.ca, bstick = TRUE)
+plot(arctic.pol.nr.ca)
+ordisurf(arctic.pol.nr.ca, july_temp, add = TRUE)
+
+Family: gaussian
+Link function: identity
+
+Formula:
+y ~ s(x1, x2, k = 10, bs = "tp", fx = FALSE)
+
+Estimated degrees of freedom:
+8.78  total = 9.78
+
+REML score: 1751.149
+
+#How to plot CA2 vs. CA3 for all pollen and with no rares axes:
+plot(arctic.pol.ca, choices = c(3,2))
+ordisurf(arctic.pol.ca, july_temp, add = TRUE)
+plot(arctic.pol.nr.ca, choices = c(3,2))
+ordisurf(arctic.pol.nr.ca, july_temp, add = TRUE)
+
+
+QUESTION 4
+#Opened RDA file in R
+RDA_Data <- readRDS("C:/Users/britt/OneDrive/Documents/Paleoeco GitHub/Lab 7/RDA_Data.RDS")
+View(RDA_Data)
+
+#Create pollen data frame
+pollen <- data.frame(RDA_Data$Alnus, RDA_Data$Betula, RDA_Data$Corylus, RDA_Data$Juniperu,
+RDA_Data$Picea, RDA_Data$Pinus.sy, RDA_Data$Quercus, RDA_Data$Salix.un, RDA_Data$Ulmus,
+RDA_Data$Artemisi, RDA_Data$Carex.ty, RDA_Data$Com.Lig., RDA_Data$Cyperace, RDA_Data$Filipend,
+RDA_Data$Graminea, RDA_Data$Rumx.act, RDA_Data$Rumx.a.a, RDA_Data$Solidago, RDA_Data$Urtica,
+RDA_Data$Dryo.f.m, RDA_Data$Dryo.typ, RDA_Data$Gymnocar, RDA_Data$Lyco.ann, RDA_Data$Pteridiu,
+RDA_Data$Selagine)
+
+# Squareroot pollen data
+pollen.sqrt <- sqrt(pollen)
+
+#Run RDA on pollen in regards to precip, temp, and both together
+pollen.rda <-rda(pollen.sqrt, RDA_Data$precip.rec)
+plot(pollen.rda)
+pollen.rda <-rda(pollen.sqrt, RDA_Data$temp.rec)
+plot(pollen.rda)
+envar<- data.frame(RDA_Data$precip.rec, RDA_Data$temp.rec)
+pollen.rda <-rda(pollen.sqrt, envar)
+plot(pollen.rda)
+
+#Add ordination surfaces
+ordisurf(pollen.rda, RDA_Data$temp.rec, add = TRUE)
+plot(pollen.rda)
+ordisurf(pollen.rda, RDA_Data$precip.rec, add = TRUE)
+
+# It appears from the triplot that temp and precip are not correlated. There also
+seems to be three distinct clusters, one of which seem to be dominantly
+controlled by higher temperatures. The second cluster is controlled by higher precipitation.
+The third cluster appears to act prefer colder temperatures but are uneffected by precipitation.
