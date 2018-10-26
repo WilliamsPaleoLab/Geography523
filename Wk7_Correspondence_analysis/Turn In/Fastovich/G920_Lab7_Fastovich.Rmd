@@ -1,0 +1,82 @@
+---
+title: "G920_Lab7_Fastovich"
+author: "David Fastovich"
+date: "October 25, 2018"
+output: 
+  html_document:
+    theme: spacelab
+    highlight: pygments
+---
+
+### 2
+#### Loading necessary packages
+```{r message=FALSE, warning=FALSE}
+library(vegan)
+library(palaeoSig)
+```
+
+#### Applying CA to arctic pollen data
+```{r fig.height= 10, fig.width= 5, fig.align='center'}
+data("arctic.pollen") # Loading in arctic pollen data
+data("arctic.env") # Loading in arctic environmental data for the ordination surfaces
+sq.arctic.poll <- sqrt(arctic.pollen) # Square root transforming the pollen data
+arctic.poll.cca <- cca(sq.arctic.poll) # Performing the correspondence analysis
+par(mfrow = c(2, 1))
+screeplot(arctic.poll.cca, bstick = TRUE) # Plotting a screeplot
+plot(arctic.poll.cca) # Making a joint plot
+ordisurf(arctic.poll.cca, arctic.env$tjul, add = TRUE) # Adding ordination surface for July temperature
+```
+
+* According to the screeplot the first two correspondence axes are significant when compared to a broken stick null model.
+  + CA1 explains 22% of the variance
+  + CA2 explains 11% of the variance
+* The joint plot indicates that a large portion of sites share a similar environmental variable in CA2, as there is little change in CA2 near a CA1 value of 0. This is not true of CA1 where the sites appear to be following a smooth gradient, with less sites having similar CA1 values. The two axes on the CA joint plot are likely temperature (CA1) and precipitation (CA2).
+* There is an arch in the joint plot which indicates that only axis 1 should be interpreted. 
+
+#### Because there is an arch CA2 and CA3 will be used in a joint plot
+```{r fig.align='center'}
+plot(arctic.poll.cca, choices = c(2, 3)) # Plotting CA2 and CA3
+ordisurf(arctic.poll.cca, arctic.env$tjul, add = TRUE) # Adding ordination surface for July temperature
+```
+
+* The joint plot of CA2 and CA3 does not have a similar arch effect. Sites with large CA2 values likely represent the extremes of an environmental gradiant, perhaps precipitation.
+
+### 3
+#### Writing my own RDA function
+```{r}
+redund <- function(y, x) {
+  fit.vals <- matrix(nrow = nrow(y), ncol = ncol(y), data = NA)
+  resids <- matrix(nrow = nrow(y), ncol = ncol(y), data = NA)
+  for (i in 1:ncol(y)) {
+    reg <- lm(y[,i] ~ x)
+    fit.vals[,i] <- reg$fitted.values
+    resids[,i] <- reg$residuals
+  }
+  fit.cov <- cov(fit.vals)
+  fit.eigen <- eigen(fit.cov)
+  resid.cov <- cov(resids)
+  resid.eigen <- eigen(resid.cov)
+  rda.axis <- fit.eigen$values[1]
+  names(rda.axis) <- "RDA1"
+  pca.axes <- resid.eigen$values[1:ncol(y)]
+  for (i in 1:ncol(y)) {
+    nam <- paste("PCA", i, sep = "")
+    names(pca.axes)[i] <- nam
+  }
+  var <- data.frame(Inertia = c((sum(rda.axis, pca.axes)), rda.axis, sum(pca.axes)),
+             Proportion = c((sum(rda.axis, pca.axes)/sum(rda.axis, pca.axes)), (sum(rda.axis)/sum(rda.axis, pca.axes)), (sum(pca.axes)/sum(rda.axis, pca.axes))),
+             Rank = c("", 1, ncol(y)))
+  rownames(var) <- c("Total", "Constrained", "Unconstrained")
+  print(var)
+  cat("\nEigenvalues for constrained axes:\n")
+  print(rda.axis)
+  cat("\nEigenvalues for unconstrained axes:\n")
+  print(pca.axes)
+  return(invisible(c(rda.axis, pca.axes)))
+}
+
+redund(y = sq.arctic.poll, x = arctic.env$tave) # My function
+rda(sq.arctic.poll ~ arctic.env$tave) # Function in the vegan package
+```
+
+Code above verifies that my function returns the same values as the `rda` function in `vegan`. Feel free to test it with other data - it should work just fine.
