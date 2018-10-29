@@ -1,0 +1,111 @@
+---
+title: "Lab 5"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+# Install necessary packages and add to library
+install.packages("vegan", repos='http://cran.us.r-project.org')
+install.packages("palaeoSig", repos='http://cran.us.r-project.org')
+library(vegan)
+library(palaeoSig)
+
+# Load dataset
+data(arctic.env)
+
+# Creates subset of dataset containing temperatures of the warmest and coldest month, annual mean temperature, July and January precipitation and the sum of annual precipitation
+arctic_precip_clim <- arctic.env[,c("tmax","tmin","tave","pjul","pdec", "annp")]
+
+# Runs pca on dataset with rda
+arctic_rda <- vegan::rda(arctic_precip_clim)
+
+# Looks at variance explained by rda
+arctic_rda_sum <- summary(arctic_rda)
+arctic_rda_sum
+
+# Makes an rda screeplot
+screeplot(arctic_rda, bstick = TRUE)
+
+# Runs pca on dataset with princomp
+arctic_princomp <- princomp(arctic_precip_clim)
+
+# Looks at variance explained by princomp
+arctic_princomp_sum <- summary(arctic_princomp)
+arctic_princomp_sum
+
+# Makes princomp screeplot
+screeplot(arctic_princomp, bstick = TRUE)
+```
+
+Questions: Explore differences between pca using the covariance matrix/centered variables and correlation matrix/standardized variables. Why are the varainces explained so different? (look at the covariance and correlation matrix)
+
+RDA scales the species scores using the standard deviation, while princomp does not.
+
+```{r}
+# Makes rda ordination biplot with points colorcoded by biome
+plot(arctic_rda,scaling=1,display='sites',xlim=c(-1,1),ylim=c(-1,1))
+points(arctic_rda,display='sites',scaling=1,col=as.numeric(arctic.env$BIOME))
+points(arctic_rda,display='species',scaling=0,pch = 15,col=4)
+text(arctic_rda,display='species',scaling=0,pos=1)
+# Makes ordination biplot
+biplot(arctic_princomp, pc.biplot = TRUE)
+```
+
+
+Pollen Analysis
+
+```{r}
+install.packages('neotoma', repos='http://cran.us.r-project.org')
+library(neotoma)
+
+# Gets list of available datasets from Jemima Lake in MA 
+jemima_dataset <- get_dataset(10026)
+
+# Stores data associated with each Jemima Lake dataset
+jemima_data <- get_download(jemima_dataset)
+
+# Assigns the first (and only) dataset, which is pollen, to jemima_pollen
+jemima_pollen <- jemima_data[[1]]
+
+# Compiles Jemima Lake pollen data using the p25 list
+jemima_pollen_p25 <- compile_taxa(jemima_data[[1]], list.name = "P25")
+
+# Checks which pollen has been converted by looking at new taxon table
+jemima_pollen_p25$taxon.list[,c("compressed", "taxon.name")]
+
+# Divides raw pollen counts by total pollen count and multiplies by 100 to get percentages
+jemima_pollen_p25[is.na(jemima_pollen_p25)] <- 0
+percentages <- 100*(jemima_pollen_p25$counts/rowSums(jemima_pollen_p25$counts))
+
+# Selects only taxa with a mean of at least two
+inclusion.criterion <- apply(percentages,2,function(x) (mean(x))>2)
+percentages_clean <- percentages[,inclusion.criterion]
+
+# Square root transform data
+sqrt(percentages_clean)
+
+# Runs pca on dataset with rda
+jemima_rda <- vegan::rda(percentages_clean) 
+
+# Looks at variance explained
+jemima_rda_sum <- summary(jemima_rda)
+jemima_rda
+
+# Makes screeplot
+screeplot(jemima_rda, bstick = TRUE)
+
+# Makes ordination biplot
+plot(jemima_rda,scaling=1,display='sites',xlim=c(-1,1),ylim=c(-1,1))
+points(jemima_rda,display='sites',scaling=1,col=as.numeric(arctic.env$BIOME))
+points(jemima_rda,display='species',scaling=0,pch = 15,col=4)
+text(jemima_rda,display='species',scaling=0,pos=1)
+```
+
+1) How many significant axes are there?
+There is one significant axis.
+
+2)Can you relate the PCA biplot to the pollen diagram?
+Quercus and "other" vary in exactly opposite ways: Quercus generally decreases over time whil "other" increases, so it makes sense that they are on opposite sides of the graph. Meanwhile, Pinus and Alnus have opposite trends.
+
