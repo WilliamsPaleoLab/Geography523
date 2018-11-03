@@ -163,7 +163,7 @@ sumsst.mat.model <- rioja::MAT(spp,SumSST,k=5,lean = FALSE,dist.method='chord')
 plot(sumsst.mat.model)
 ```
 
-Ideally, a calibration function is trained on one portion of the modern species assemblages (calibration set) and applied to another portion of the modern species assemblages (validation set). This two data sets are mutually exclusive and hopefully independent. To validate or cross-validate MAT, we usually use a technique called k-fold cross-validation. In k-fold cross-validation the modern data set is split into k mutually exclusive parts. k-1 parts are then used for calibration and one part is used for validation (test). The simplest form of k-fold cross-validation is the leave-one-out technique, in which a single sample is removed and then all other samples are used to build a prediction for that sample.  This procedure is then repeated for all samples.
+Ideally, a calibration function is trained on one portion of the modern species assemblages (calibration set) and applied to another portion of the modern species assemblages (validation set). This two data sets are mutually exclusive and hopefully independent. To validate or cross-validate MAT, we usually use a technique called k-fold cross-validation. In k-fold cross-validation the modern data set is split into k mutually exclusive par ts. k-1 parts are then used for calibration and one part is used for validation (test). The simplest form of k-fold cross-validation is the leave-one-out technique, in which a single sample is removed and then all other samples are used to build a prediction for that sample.  This procedure is then repeated for all samples.
 
 ```{r cv,cache=TRUE, message = FALSE, warning=FALSE,tidy=TRUE}
 cv.sumsst.mat.model <- rioja::crossval(sumsst.mat.model,cv.method='lgo',verbose=FALSE)
@@ -353,3 +353,4 @@ EXERCISES
 
 
 
+ 

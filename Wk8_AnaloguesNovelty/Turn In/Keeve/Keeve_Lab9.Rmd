@@ -1,0 +1,37 @@
+---
+title: "Keeve Lab 9"
+output: html_notebook
+---
+
+##Exercise 2
+
+Running cA on pollen data
+```{r}
+library(palaeoSig)
+data("arctic.env")
+data("arctic.pollen")
+arctic_pollen_sqrt <- sqrt(arctic.pollen)
+
+arctic_pollen_cca_tave <- cca(arctic_pollen_sqrt ~ arctic.env$tave)
+arctic_pollen_cca_tmax <- cca(arctic_pollen_sqrt ~ arctic.env$tmax)
+arctic_pollen_cca_tmin <- cca(arctic_pollen_sqrt ~ arctic.env$tmin)
+#summary(arctic_pollen_cca_tjan)
+#summary(arctic_pollen_cca_tjul)
+summary(arctic_pollen_cca_tmax)
+summary(arctic_pollen_cca_tave)
+summary(arctic_pollen_cca_tmin)
+View(arctic_pollen_cca_tmax$CCA$eig)
+View(arctic_pollen_cca_tave$CCA$eig)
+View(arctic_pollen_cca_tmin$CCA$eig)
+```
+Maximum temperature explains the most variance
+
+July and January variance
+```{r}
+#Shared
+arctic_pollen_cca_tjul_tjan <- cca(arctic_pollen_sqrt ~c(arctic.env$tjul,arctic.env$tjan))
+
+#arctic_pollen_cca_tjul <- cca(arctic_pollen_sqrt ~ arctic.env$tjul)
+#arctic_pollen_cca_tjan <- cca(arctic_pollen_sqrt ~ arctic.env$tjan)
+```
+
