@@ -1,0 +1,212 @@
+---
+title: "G920_Lab9_Fastovich"
+author: "David Fastovich"
+date: "November 1, 2018"
+output: 
+  html_document:
+    theme: spacelab
+    highlight: pygments
+---
+
+```{r setup, message=FALSE, warning=FALSE}
+library(palaeoSig)
+library(vegan)
+library(rioja)
+library(analogue)
+library(neotoma)
+```
+
+### Part 1: Canonical correspondence analysis
+```{r}
+dat <- data.frame(spec1 = c(79, 60, 36, 18, 6, 1),
+                  spec2 = c(19, 33, 44, 43, 31, 18),
+                  spec3 = c(2, 7, 20, 39, 63, 81),
+                  tjul = c(10, 12, 14, 16, 18, 20))
+
+species.scores <- list()
+for(i in 1:3) {
+  species.scores[[i]] <- sum(dat[,i]/colSums(dat)[i] * dat$tjul)
+}
+
+site.scores <- list()
+for(i in 1:6) {
+  val <- list()
+  for(j in 1:3) {
+    val[[j]] <- sum(dat[i, j]/sum(dat[i,1:3]) * species.scores[[j]])
+  }
+  site.scores[[i]] <- sum(unlist(val))
+}
+```
+
+Species scores: `r unlist(species.scores)`
+
+Site scores: `r unlist(site.scores)`
+
+### Part 2: Apply CCA to the arctic pollen data
+Loading data
+```{r}
+data("arctic.pollen")
+data("arctic.env")
+```
+
+#### Which temperature variable explains the most variance?
+```{r}
+variance.explained <- list()
+for(i in 1:12) {
+  
+  cca.temp <- cca(sqrt(arctic.pollen) ~ arctic.env[,11+i])
+  nam <- paste("Variance Explained by ", (colnames(arctic.env)[11+i]), sep = "")
+  variance.explained <- c(variance.explained, cca.temp$CCA$eig)
+  names(variance.explained)[i]<- nam
+  
+}
+sort(unlist(variance.explained), decreasing = TRUE)
+```
+
+* Temperature in August explains the most variance
+
+#### How much variance do July and January temperature explain?
+```{r}
+mod <- varpart(sqrt(arctic.pollen), ~ arctic.env$tjun, ~ arctic.env$tjul)
+plot(mod)
+```
+
+
+* tjun explains 5.78% of the variance in the arctic pollen data
+* tjul explains 10% of the variance in the arctic pollen data
+* tjun and tjul share 13% of the variance in the arctic pollen data
+
+#### How much variance do January and July temperatures, annual precipitation, and July sunshine variables explain?
+```{r, message=FALSE, warning=FALSE, results='hide'}
+cca.envi <- cca(sqrt(arctic.pollen) ~ arctic.env$tjan + arctic.env$tjul + arctic.env$annp + arctic.env$sjul)
+cca.envi
+par(mfrow = c(2, 2))
+plot(cca.envi)
+ordisurf(cca.envi, arctic.env$tjan, add = TRUE, main = "tjan")
+plot(cca.envi)
+ordisurf(cca.envi, arctic.env$tjul, add = TRUE, main = "tjul")
+plot(cca.envi)
+ordisurf(cca.envi, arctic.env$annp, add = TRUE, main = "annp")
+plot(cca.envi)
+ordisurf(cca.envi, arctic.env$sjul, add = TRUE, main = "sjul")
+```
+
+* Variance explained by the environmental variables:
+  - `r cca.envi$CCA$eig`
+  - annp is loaded entirely on CCA1 and sjul is loaded entirely on CCA2 suggesting that these two variables explain much of the variance in the first and second axes. tjul explains most of the variance in the data and it does so primarily in the first axis but also on the second. tjan and sjul are highly negatively correlated and annp and tjul are highly positively correlated. 
+
+### Part 3: Weighted averaging
+#### Plot abundances of taxa F.CYPE, F.BBET, F.PPIC,F.PPIN as function of July temeprature.
+```{r}
+par(mfrow = c(2,2))
+plot(y = arctic.pollen$F.CYPE, x = arctic.env$tjul, main = "F.CYPE")
+plot(y = arctic.pollen$F.BBET, x = arctic.env$tjul, main = "F.BBET")
+plot(y = arctic.pollen$F.PPIC, x = arctic.env$tjul, main = "F.PPIC")
+plot(y = arctic.pollen$F.PPIN, x = arctic.env$tjul, main = "F.PPIN")
+```
+
+#### Estimate WA optima and tolerances for these taxa
+```{r}
+# Estimating optima
+cype.op <- optima(arctic.pollen$F.CYPE, env = arctic.env$tjul)
+bbet.op <- optima(arctic.pollen$F.BBET, env = arctic.env$tjul)
+ppic.op <- optima(arctic.pollen$F.PPIC, env = arctic.env$tjul)
+ppin.op <- optima(arctic.pollen$F.PPIN, env = arctic.env$tjul)
+
+# Estimating tolerances
+cype.tol <- tolerance(arctic.pollen$F.CYPE, env = arctic.env$tjul)
+bbet.tol <- tolerance(arctic.pollen$F.BBET, env = arctic.env$tjul)
+ppic.tol <- tolerance(arctic.pollen$F.PPIC, env = arctic.env$tjul)
+ppin.tol <- tolerance(arctic.pollen$F.PPIN, env = arctic.env$tjul)
+```
+
+Species |    Optima   |  Tolerance
+------- | ----------- | ------------
+F.CYPE  | `r cype.op` | `r cype.tol`
+F.BBET  | `r bbet.op` | `r bbet.tol`
+F.PPIC  | `r ppic.op` | `r ppic.tol`
+F.PPIN  | `r ppin.op` | `r ppin.tol`
+
+#### Unimodal response approxiamted by weighted averaging
+```{r}
+par(mfrow = c(2,2))
+plot(y = arctic.pollen$F.CYPE, x = arctic.env$tjul, main = "F.CYPE")
+lines(arctic.env$tjul, (dnorm(arctic.env$tjul, cype.op, cype.tol) * 100), col = "red")
+plot(y = arctic.pollen$F.CYPE, x = arctic.env$tjul, main = "F.BBET")
+lines(arctic.env$tjul, (dnorm(arctic.env$tjul, bbet.op, bbet.tol) * 100), col = "red")
+plot(y = arctic.pollen$F.CYPE, x = arctic.env$tjul, main = "F.PPIC")
+lines(arctic.env$tjul, (dnorm(arctic.env$tjul, ppic.op, ppic.tol) * 100), col = "red")
+plot(y = arctic.pollen$F.CYPE, x = arctic.env$tjul, main = "F.PPIN")
+lines(arctic.env$tjul, (dnorm(arctic.env$tjul, ppin.op, ppin.tol) * 100), col = "red")
+```
+
+#### Estimate July temperature optima for all taxa in the arctic pollen dataset and compare them to species scores of CCA
+```{r}
+wa.model <- rioja::WA(sqrt(arctic.pollen), arctic.env$tjul)
+cca.all <- cca(sqrt(arctic.pollen), arctic.env$tjul)
+
+# Plotting WA coefficients against species scores
+plot(wa.model$coefficients, scores(cca.all, display = c("species"))[,1])
+```
+
+* The species scores and the Wa species coefficients have a nearly perfect 1:1 relationship
+
+#### Predict July temperatures and compare them to CCA site scores
+```{r}
+temp.predic <- predict(wa.model, deshrink = TRUE, mono = TRUE)
+plot(temp.predic[,1], scores(cca.all, display = c("site"))[,1])
+```
+
+* The site scores and the Wa predicted temperatures have a nearly perfect 1:1 relationship
+
+#### Compare apparent and cross-validated predictions of July temperature. Also compare performance statistic.
+```{r, warning=FALSE, message=FALSE, results='hide'}
+wa.model.cross <- rioja::crossval(wa.model)
+temp.predic.cross <- predict(wa.model.cross, deshrink = TRUE, mono = TRUE)
+rioja::performance(wa.model.cross)
+rioja::performance(wa.model)
+
+# Plotting predicted temperatures that are and are not cross validated to one another
+plot(temp.predic, temp.predic.cross)
+```
+
+* Apparent and cross validated temperature predictions are nearly identical and so a perfect 1:1 relationship
+* Apparent and cross validated WA models have identical performance in their model fitting
+
+##### Compare your MAT based reconstruction (week 8) to a WA based reconstruction of the same enironmental variable for the same site.
+```{r, message=FALSE, warning=FALSE, results='hide'}
+# Getting the data and turning the counts into proportions
+tul.site <- get_site("*tulane*")
+tul.dataset <- get_dataset(tul.site)
+tul.down <- get_download(tul.dataset)
+tul.poll <- tul.down$`19620`$counts
+tul.perc <- (tul.poll/rowSums(tul.poll))
+
+# Compiling the taxa to match the column names in the NAMPD
+tul.comp <- compile_taxa(tul.perc, list.name = "WhitmoreFull")
+tul.comp <- tul.comp[,-41] # Removing the "Other" column
+
+# Loading NAMPD data
+data("Climate")
+data("Pollen")
+
+# Loading in tave temperature from Lab 8 using the modern analogue technique. Not running it again to save computing time.
+tul.tave.mat <- read.csv("tule_tave_MAT.csv")
+
+# Working the data to ensure that the NAMPD only has taxa that occur in the fossil pollen dataset. Then turning this into proportions
+colnames(Climate)[1:3] <- c('tjan','tfeb','tmar') # There is an issue with the Climate dataset - the first three columns are named incorrectly
+Pollen.sel <- Pollen[,which(colnames(Pollen) %in% colnames(tul.comp))] # Selecting the taxa that are present in the fossil pollen dataset
+Pollen.sel[is.na(Pollen.sel)] <- 0
+Pollen.sel.prop <- (Pollen.sel/rowSums(Pollen.sel))
+
+# Making the WA model using square root transformed NAMPD pollen and climate data
+poll.temp.wa <- rioja::WA(sqrt(Pollen.sel.prop), Climate$tave, mono = TRUE)
+tul.tave.wa <- predict(poll.temp.wa, newdata = sqrt(tul.comp))
+
+# Plotting the two different temperature reconstructions
+plot(x = tul.down$`19620`$chronologies$`Jacobson et al. 2012`$age, y = tul.tave.mat$MAT, type = "l", ylim = c(0, 25), xlab = "Age (ka)", ylab = "Temperature")
+lines(x = tul.down$`19620`$chronologies$`Jacobson et al. 2012`$age, y = tul.tave.wa$fit[,3], col = "red")
+legend("bottomright", legend = c("MAT", "WA"), col = c("black", "red"), lty = c(1, 1))
+```
+
+* WA and MAT both produced similar patterns however the absolute temperature estimates are highly different. WA estimates average 1 C, whereas MAT estimates average 15 C. Furthermore, the rapid changes in temperature modeled using MAT are much larger than those modeled by WA, therefore it looks as those WA reconstructs dampened temperature changes. Lastly, while temperature patterns are congruent towards the end of the record from 0 ka to 10 ka MAT reconstructs a warming and then cooling climate, while WA reconstructs steady cooling beginning at 10 ka followed by a 
