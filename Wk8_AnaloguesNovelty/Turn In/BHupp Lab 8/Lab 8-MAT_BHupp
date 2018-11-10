@@ -1,0 +1,99 @@
+LAB 8: MODERN ANALOG TECHNIQUES
+Brittany Hupp
+
+#Load relevant Packages
+library(rioja)
+library(analogue)
+library(vegan)
+library(neotoma)
+
+#Dowload climate and pollen from North American Pollen Database (NAMPD)
+data(Climate)
+data(Pollen)
+
+#Correcting cilmate column names
+colnames(Climate)[1:3] <- c('tjan','tfeb','tmar')
+
+#Acquire Mendota D core pollen dataset from neotoma and change to percentages
+mendotaD <- get_dataset(1679)
+mendotaD.data <- get_download(mendotaD)
+mendota.pol <- mendotaD.data[[1]]
+
+#Need to replace NA's within modern pollen dataset to zeros
+modern.pol.corrected <- replace(Pollen,is.na(Pollen),0)
+
+#Need to convert the modern pollen to proportions as well as the mendota Pollen
+modern.pol.pct <- analogue::tran(x = modern.pol.corrected, method = 'percent')
+mendota.pol.pct <- analogue::tran(x =  mendota.pol$counts, method = 'percent')
+
+#Extract depths for eventual time series from Mendota D data
+depths <- mendota.pol$sample.meta$depth
+
+#Now to convert the names of the Mendota D dataset to be the same as what is used in the NAMPD
+mendota.pol.compile <- compile_taxa(mendota.pol.pct, list = "WhitmoreFull")
+
+#Now to compare the two Mendota D and modern NAMPD datasets and remove taxa that are not found in both
+# This removes the 'other' column which is in the 16th position
+fossil.pol <- mendota.pol.compile[, -16]
+modern.pol <- modern.pol.pct[,which(colnames(modern.pol.pct) %in% colnames(fossil.pol))]
+
+#Data is now prepped to create modern analogue models (MAT)
+#Environmental variables of interest: annual precip, max temp, min temp
+
+#Annual precipitation model
+MAT_annp <- rioja::MAT(modern.pol, Climate$annp, k = 5, lean = FALSE)
+plot(MAT_annp)
+plot(MAT_annp, xlab = "Modern Pollen", ylab = "annual precipitation")
+
+#Maximum temperature model
+MAT_tmax <- rioja::MAT(modern.pol, Climate$tmax, k = 5, lean = FALSE)
+plot(MAT_tmax,xlab = "Modern Pollen", ylab = "maximum temperature")
+
+#Minimum temperature model
+MAT_tmin <- rioja::MAT(modern.pol, Climate$tmin, k = 5, lean = FALSE)
+plot(MAT_tmin, xlab = "Modern Pollen", ylab = "minimum temperature")
+
+#Create predictions from models that can then be cross validated
+pred.annp = predict(MAT_annp, fossil.pol)
+pred.tmax = predict(MAT_tmax, fossil.pol)
+pred.tmin = predict(MAT_tmin, fossil.pol)
+
+#Onto cross validation of each model! This involves testing part of the modern dataset against itself.
+#Annual Precip
+annp.cv= rioja::crossval(MAT_annp, verbose = FALSE)
+plot(annp.cv)
+annp.cv.pf = rioja::performance(annp.cv)
+annp.cv.pf
+#Creation of a time series for annual precip
+plot(depths, pred.annp$fit[,'MAT'], type = 'l', ylab = 'Annual Precipitation [cm]')
+
+#Maximum Temperature
+tmax.cv= rioja::crossval(MAT_tmax, verbose = FALSE)
+plot(tmax.cv)
+tmax.cv.pf = rioja::performance(tmax.cv)
+tmax.cv.pf
+#Creation of a time series for max temp
+plot(depths, pred.tmax$fit[,'MAT'], type = 'l', ylab = 'Maximum Temperature [C]')
+
+#Minimum Temperature
+tmin.cv= rioja::crossval(MAT_tmin, verbose = FALSE)
+plot(tmin.cv)
+tmin.cv.pf = rioja::performance(tmin.cv)
+tmin.cv.pf
+#Creation of a time series for minimum temp
+plot(depths, pred.tmin$fit[,'MAT'], type = 'l', ylab = 'Minimum Temperature [C]')
+
+#Mendota D fossil pollen data for Comparison
+fossil.pol.pct.nr <- fossil.pol[, colMeans(fossil.pol, na.rm = TRUE) > 2]
+fossil.pol.plot <- strat.plot(fossil.pol.pct.nr, yvar = depths, y.rev = TRUE, plot.line = FALSE,
+                plot.poly = TRUE, plot.bar = TRUE, col.bar ="black", col.poly="forestgreen",
+                col.poly.line="black", scale.percent=TRUE, xSpace=0.01, x.pc.lab=TRUE, x.pc.omit0=TRUE, las=2)
+
+Interpretation:
+The relative abundance of Quercus seems to generally follow the trend of annual precipitation,
+in which it is more abundant with higher annual precipitation. As expected, Picea appears to
+show the opposite relationship in which it is less abundant at times of higher predicted precipitation.
+There does not appear to be any obvious relationships between maximum temperature and fossil pollen abundances.
+However, the curve for minimum temperature does mimic that abundance curve for Quercus, similar to what is
+ seen for annual precipitation, suggesting that minimum temperature may have been more of a controlling factor
+in regards to forest assemblage over time near Lake Mendota.
