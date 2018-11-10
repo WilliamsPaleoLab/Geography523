@@ -1,0 +1,125 @@
+#Geography 920 Fall 2018
+#Week 9 Assignment, CCA and WA
+#Daniel Segessenman
+
+#Part 1 Code:
+
+#Make the table
+data <- data.frame("spec1" = c(79, 60, 36, 18, 6, 1),
+                  "spec2" = c(19, 33, 44, 43, 31, 18), "spec3" =
+                  c(2, 7, 20, 39, 63, 81), "t.jul" = c(10, 12, 14,
+                  16, 18, 20))
+
+#Species score
+
+colsum1 <- sum(data$spec1)
+colsum2 <- sum(data$spec2)
+colsum3 <- sum(data$spec3)
+
+sps1 <- (data$spec1 / colsum1) * data$t.jul
+sps2 <- (data$spec2 / colsum2) * data$t.jul
+sps3 <- (data$spec3 / colsum3) * data$t.jul
+
+species_scores <- data.frame(ss1, ss2, ss3)
+
+#Site scores
+
+sis1 <- ((data$spec1 / 100) * species_scores$ss1)
+sis2 <- ((data$spec2 / 100) * species_scores$ss2)
+sis3 <- ((data$spec3 / 100) * species_scores$ss3)
+
+site_scores <- data.frame(sis1, sis2, sis3)
+
+
+#Part 2 Code:
+
+#Import packages
+library(palaeoSig)
+library(vegan)
+
+#Load and prepare data
+data(arctic.env)
+data(arctic.pollen)
+arctic.pollen <- sqrt(arctic.pollen)
+
+#CCA of july temperature
+cca.tjul <- cca(arctic.pollen ~ tjul + Condition(tjul), data= arctic.env)
+plot(cca.tjul)
+
+#CCA of january temperature
+cca.tjan <- cca(arctic.pollen ~ tjan + Condition(tjan), data= arctic.env)
+plot(cca.tjan)
+
+#Constrain (rda) arctic data for july temp
+rda.tjul <- rda(arctic.pollen, arctic.env$tjul)
+plot(rda.tjul)
+
+#Constrain (rda) arctic data for january temp
+rda.tjan <- rda(arctic.pollen, arctic.env$tjan)
+plot(rda.tjan)
+
+#Constrain (rda) arctic data for annual precipitation
+rda.annp <- rda(arctic.pollen, arctic.env$annp)
+plot(rda.annp)
+
+#Constrain (rda) arctic data for July sunshine
+rda.sjul <- rda(arctic.pollen, arctic.env$sjul)
+plot(rda.sjul)
+
+#Make a tri-plot of pollen, july sunshine, and annual precipitation
+sjul_annp <- data.frame(arctic.env$sjul, arcitc.env$annp)
+tri_plot <- rda(arctic.pollen, sjul_annp)
+plot(tri_plot)
+
+#Add ordisurfaces of sjul and annp to plot
+ordisurf(arctic.pollen, arctic.env$sjul, add = TRUE)
+ordisurf(arctic.pollen, arctic.env$annp, add = TRUE)
+
+#Discussion:
+#January temperature seems to explain the most variance between July and January.
+#Annual precipitation and July temperature appear to explain the most variance,
+#July temperature explains some variance, whereas the sunshine does not seem to
+#explain much variance.
+
+#Part 3 Code:
+
+#Load packages
+library(rioja)
+library(analogue)
+
+#Load and prepare data
+data(arctic.pollen)
+data(arctic.env)
+
+pollen <- data.frame(arctic.pollen$F.CYPE, arctic.pollen$F.BBET,
+                     arctic.pollen$F.PPIC, arctic.pollen$F.PPIN)
+plot(pollen, arctic.env$tjul)
+
+#Estimate WA, optima, and tolerances for above pollen data
+pollen.wa <- rioja::WA(pollen, arctic.env$tjul)
+plot(pollen.wa)
+optima <- optima(pollen, arctic.env$tjul)
+tolerance <- tolerance(pollen, choices = 1:2, which = c("species","sites"),
+          scaling = "species", useN2 = TRUE, hill = FALSE)
+
+#Add unimodal response with approximated WA
+dnorm <- dnorm(lines(arctic.env$tjul, dnorm(arctic.env$tjul, optima, tolerance
+plot (dnorm)
+
+#Find optima and WA model for entire arctic.pollen dataset
+optima.all <- optima(arctic.pollen, arctic.env$tjul)
+all.wa <- rioja::WA(arctic.pollen, arctic.env$tjul)
+plot(all.wa)
+
+#Predict july temperature for the whole dataset from the subset
+tjul.predict <- predict(pollen.wa, arctic.pollen)
+
+#Perform cross validation and performance of the model
+cv.predict <- rioja::crossval(pollen.wa, verbose + FALSE)
+plot (cv.predict)
+pfcv.predict <- rioja::performance(cv.predict)
+pfcv.predict
+
+#I apologize on this part of the assignment... I assumed that this was a cross
+#validation of a modern dataset using a subset of itself? But I was really unsure
+#of what to do with the models/plots we were asked to develop for this part. 
