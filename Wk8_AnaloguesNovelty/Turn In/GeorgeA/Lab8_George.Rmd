@@ -1,0 +1,135 @@
+---
+title: "Week 8 Lab"
+output: html_notebook
+---
+EXERCISES
+1. Obtain a fossil pollen dataset for eastern North America from Neotoma.  
+
+```{r}
+# Installs necessary packages
+library(neotoma)
+library(analogue)
+library(rioja)
+library(vegan)
+library(maps)
+
+# Gets list of available datasets from Jemima Lake in MA 
+devils_dataset <- get_dataset(666)
+
+# Stores data associated with each Jemima Lake dataset
+devils_data <- get_download(devils_dataset)
+
+# Assigns the first (and only) dataset, which is pollen, to jemima_pollen
+devils_pollen <- devils_data[[1]]
+```
+
+
+2. Do standard data handling:
+- Ensure that the taxon list and order matches exactly to that in the North American Modern Pollen Dataset. (You may want to reduce both modern and fossil datasets to a common list.  See Williams and Shuman 2008 QSR for experimentation with standard taxon lists.)
+- Calculate pollen percentages for both datasets so that every pollen sample in the modern and fossil pollen datasets has a set of taxa with pollen percentages totalling 100%.
+
+```{r}
+# Downloads modern pollen and climate data
+data(Pollen)
+data(Climate)
+
+# Compiles devils pollen data with list used by NAMD
+devils_pollen_clean <- compile_taxa(devils_pollen, list.name = "WhitmoreFull")
+
+# Cleans counts and removes "other" category
+devils_counts <- devils_pollen_clean$counts
+devils_counts_clean <- replace(devils_counts, is.na(devils_counts), 0)
+devils_counts_final <- devils_counts_clean[,c(-27)]
+
+# Cleans counts
+Pollen_corrected <- replace(Pollen,is.na(Pollen),0)
+
+# Subsets modern pollen data with list of species in Devils dataset
+Pollen_counts <- Pollen[which(colnames(Pollen_corrected) %in% colnames(devils_counts_clean))]
+
+# Calculates pollen percentages
+devils_percentages <- 100*(devils_counts_final/rowSums(devils_counts_final))
+Pollen_percentages <- 100*(Pollen_counts/rowSums(Pollen_counts))
+
+```
+
+3. Pick three environmental variables for reconstruction (use good judgment here) and calculate cross-validation statistics RMSE0, RMSE
+
+```{r}
+# Assigns climate variables to vectors
+t_max <- Climate[,26]
+t_min <- Climate[,27]
+p_ann <- Climate[,32]
+
+# Runs MAT on modern pollen percentages and max temp
+MAT.t_max <- rioja::MAT(Pollen_percentages, t_max, lean = FALSE)
+# Plots MAT results
+plot(MAT.t_max)
+# cross-validates the MAT using the leave-one-out technique
+cv.tmax.mat.model <- rioja::crossval(MAT.t_max, cv.method='lgo', verbose=FALSE)
+plot(cv.tmax.mat.model)
+# Determines RMSE, performance statistics, and cross-validated predictions' performance
+perf.cv.tmax.mat.model <- rioja::performance(cv.tmax.mat.model)
+perf.cv.tmax.mat.model
+
+# Runs MAT on modern pollen percentages and min temp
+MAT.t_min <- rioja::MAT(Pollen_percentages, t_min, lean = FALSE)
+# Plots MAT results
+plot(MAT.t_min)
+# cross-validates the MAT using the leave-one-out technique
+cv.tmin.mat.model <- rioja::crossval(MAT.t_min, cv.method='lgo', verbose=FALSE)
+plot(cv.tmin.mat.model)
+# Determines RMSE, performance statistics, and cross-validated predictions' performance
+perf.cv.tmin.mat.model <- rioja::performance(cv.tmin.mat.model)
+perf.cv.tmin.mat.model
+
+# Runs MAT on modern pollen percentages and annual precip
+MAT.p_ann <- rioja::MAT(Pollen_percentages, p_ann, lean = FALSE)
+# Plots MAT results
+plot(MAT.p_ann)
+# cross-validates the MAT using the leave-one-out technique
+cv.p_ann.mat.model <- rioja::crossval(MAT.p_ann, cv.method='lgo', verbose=FALSE)
+plot(cv.p_ann.mat.model)
+# Determines RMSE, performance statistics, and cross-validated predictions' performance
+perf.cv.p_ann.mat.model <- rioja::performance(cv.p_ann.mat.model)
+perf.cv.p_ann.mat.model
+```
+
+4. Produce time series of the reconstructed variables and for min(D).
+```{r}
+# assigns depths to vector
+depths <- devils_pollen$sample.meta$depth
+
+# Predicts mean max temp by core depth using the MAT model
+devils_pred <- predict(MAT.t_max, devils_percentages)
+plot(depths, devils_pred$fit[,'MAT'],type='l',xlab = 'Depths [cm]', ylab ='Temp [C]', main = "Predicted Mean Temp of Warmest Month at Devils Lake, WI")
+# Plots the minimum square-chord distance by depth
+plot(depths, devils_pred$dist.n[,1],xlab = 'Depths [cm]', ylab ='Chord Distance', main = "Min Square-Chord Distance for Warmest Month Temp at Devils Lake")
+
+# Predicts mean min temp by core depth using the MAT model
+devils_pred_tmin <- predict(MAT.t_min, devils_percentages)
+plot(depths, devils_pred_tmin$fit[,'MAT'],type='l',xlab = 'Depths [cm]', ylab ='Temp [C]', main = "Predicted Mean Temp of Coldest Month at Devils Lake, WI")
+# Plots the minimum square-chord distance by depth
+plot(depths, devils_pred_tmin$dist.n[,1],xlab = 'Depths [cm]', ylab ='Chord Distance', main = "Min Square-Chord Distance for Coldest Month Temp at Devils Lake")
+
+# Predicts mean max temp by core depth using the MAT model
+devils_pred_pann <- predict(MAT.p_ann, devils_percentages)
+plot(depths, devils_pred_pann$fit[,'MAT'],type='l',xlab = 'Depths [cm]', ylab ='Temp [C]', main = "Predicted Annual Precipitation at Devils Lake, WI")
+# Plots the minimum square-chord distance by depth
+plot(depths, devils_pred_pann$dist.n[,1],xlab = 'Depths [cm]', ylab ='Chord Distance', main = "Min Square-Chord Distance for Annual Precipitation at Devils Lake")
+```
+
+5. Build a standard pollen stratigraphic diagram, and compare your reconstructed paleoclimate time series to it. 
+
+```{r}
+# Selects only taxa with at least two peaks of at least 2%
+inclusion.criterion <- apply(devils_percentages, 2, function(x)(sum(x>2))>1)
+devils_percentages_clean <- devils_percentages[,inclusion.criterion]
+
+# Creates stratigraphic diagram of taxa with two peaks of at least 2%
+rioja::strat.plot(devils_percentages_clean, yvar = depths, ylabel = "Depth (cm)")
+
+```
+Can any of the reconstructed climate variations be visually linked to changes in the pollen abundances for particular plant taxa?  What about the occurrence of high ecological novelty?
+
+Yes, the graphs show a sharp increase in max and min temp at about 500 cm. At that point, many taxa including Abies, Betula, Cyperacae, and Picea decline, while species such as Acer, Pinus, and Quercus increase. From about 300 to 500 cm, the annual precipitation remains much steadier than during other periods. This seems to be linked to groupings of species at Devils Lake that have not been seen before or since (like Acer, Carya, Ostryca, Tilia, and Ulmus).
