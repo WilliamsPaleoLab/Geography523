@@ -1,0 +1,169 @@
+---
+title: "Weighted Avg & CCA"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+####1. Calculate species and site scores
+
+Please see associated excel document
+
+
+####2. Apply CCA to arctic pollen data
+
+```{r, include = FALSE, echo=FALSE}
+library(palaeoSig)
+library(rioja)
+library(analogue)
+```
+
+```{r}
+data(arctic.pollen)
+data(arctic.env)
+arctic.ca <- cca(sqrt(arctic.pollen) ~ tave + tmax + tmin + tdec + tjan +tfeb + tmar + tapr + tmay + tjun + tjul + taug + tsep + toct + tnov + tdec.1, data = arctic.env)
+plot(arctic.ca)
+head(summary(arctic.ca))
+screeplot(arctic.ca)
+```
+
+CCA1 explains 0.4932 of the variance, and tmax has the highest biplot score for that axis. Therefore, tmax appears to be the variable that explains more of the variance than the others included in the analysis.
+
+```{r}
+var.ex <- varpart(sqrt(arctic.pollen), arctic.env$tjul, arctic.env$tjan)
+var.ex
+```
+
+Since a+b+c - a+b = c, 0.27042 - 0.22897 = 0.04145 (tjan).
+
+And a+b+c - b+c = a, 0.27042 - 0.03129 = 0.23913 (tjul).
+
+So, January and July temperatures explain roughly 0.04145 and 0.23913 of the variance, respectively.
+
+**Constrain the arctic pollen dataset using tjan, tjul, ptotal, and sjul**
+
+```{r}
+colnames(arctic.env)
+new.ca <- cca(sqrt(arctic.pollen) ~ tjan + tjul + ptotal + sjul, data = arctic.env)
+ordiplot(new.ca)
+```
+
+Annual precipitation and July temperatures appear to explain most of the variance, while July sunshine appears to essentially describe the variance in CCA2. Precipitation and July sunshine are almost completely orthogonal to each other, each of which very closely correlate to the first two axes of the ordination.
+
+```{r}
+ordisurf(new.ca, arctic.env$sjul, main = "July sunshine")
+ordisurf(new.ca, arctic.env$ptotal, main = "Annual Precipitation")
+ordisurf(new.ca, arctic.env$tjul, main = "July temperature")
+ordisurf(new.ca, arctic.env$tjan, main = "January temperature")
+```
+F.CYPE, F.BBET, F.PPIC,F.PPIN
+
+####3. Weighted Averaging
+
+```{r}
+layout(matrix(c(1,2,3,4), ncol = 2))
+plot(arctic.pollen$F.CYPE ~ arctic.env$tjul, main = "F.CYPE", xlab = "Mean July Temperature (C)", ylab = "F.CYPE Pollen")
+plot(arctic.pollen$F.BBET ~ arctic.env$tjul, main = "F.BBET", xlab = "Mean July Temperature (C)", ylab = "F.BBET Pollen")
+plot(arctic.pollen$F.PPIC ~ arctic.env$tjul, main = "F.PPIC", xlab = "Mean July Temperature (C)", ylab = "F.PPIC Pollen")
+plot(arctic.pollen$F.PPIN ~ arctic.env$tjul, main = "F.PPIN", xlab = "Mean July Temperature (C)", ylab = "F.PPIN Pollen")
+```
+
+```{r}
+taxa <- data.frame(arctic.pollen$F.CYPE, arctic.pollen$F.PPIC, arctic.pollen$F.BBET, arctic.pollen$F.PPIN)
+colnames(taxa) <- c("f.cype", "f.ppic", "f.bbet", "f.ppin")
+wa.opt <- analogue::optima(taxa, arctic.env$tjul)
+wa.opt #Species optima (for July temp)
+
+wa.tol <- tolerance(taxa, arctic.env$tjul)
+wa.tol #Species tolerance (for July temp)
+```
+
+
+Add unimodal response approximated by weighted averaging to the abundance plots.
+
+```{r}
+taxa.prop <- taxa/rowSums(taxa)
+layout(matrix(c(1,2,3,4), ncol = 2))
+plot(taxa.prop$f.cype ~ arctic.env$tjul, main = "F.CYPE", xlab = "Mean July Temperature (C)", ylab = "F.CYPE Pollen")
+lines(arctic.env$tjul, dnorm(arctic.env$tjul, 7.963289, 2.807172))
+plot(taxa.prop$f.bbet ~ arctic.env$tjul, main = "F.BBET", xlab = "Mean July Temperature (C)", ylab = "F.BBET Pollen")
+lines(arctic.env$tjul, dnorm(arctic.env$tjul, 11.690868, 2.819576))
+plot(taxa.prop$f.ppic ~ arctic.env$tjul, main = "F.PPIC", xlab = "Mean July Temperature (C)", ylab = "F.PPIC Pollen")
+lines(arctic.env$tjul, dnorm(arctic.env$tjul, 10.514626, 3.127384))
+plot(taxa.prop$f.ppin ~ arctic.env$tjul, main = "F.PPIN", xlab = "Mean July Temperature (C)", ylab = "F.PPIN Pollen")
+lines(arctic.env$tjul, dnorm(arctic.env$tjul, 12.108539, 4.936146))
+```
+
+Estimate July temperature optima for all taxa in the arctic.pollen dataset and compare them to species scores in CA
+
+```{r}
+colnames(arctic.pollen) #Let's see which taxa we have
+all.wa <- rioja::WA(arctic.pollen, arctic.env$tjul)
+summary(all.wa) #Using function WA in rioja package
+coefficients(all.wa) #Species optima
+all.wa.cal <- rioja::crossval(all.wa, verbose = FALSE, cv.method = "loo")
+plot(all.wa.cal)
+#CCA for tjul
+all.cca <- cca(arctic.pollen ~ arctic.env$tjul)
+plot(all.cca)
+summary(all.cca)
+```
+
+I wrote the species scores above into a csv file so I could more easily work with it.
+
+```{r}
+spp.scores <- read.csv("species.scores.csv")
+comp <- cbind(all.wa$coefficients,spp.scores[,2:6])
+comp
+```
+
+While there initially appeared to be a similar pattern in relative distances between the optima and the species scores, I they don't appear to be as distinct when the two are put side to side. I must not be accessing the species scores correctly because there should be similarities here that I apparently am not finding.
+
+```{r}
+
+#Using analogue package, using all taxa (Just for fun)
+all.opt <- analogue::optima(arctic.pollen, arctic.env$tjul)
+all.opt #WA optima for all taxa in dataset
+all.tol <- tolerance(arctic.pollen, arctic.env$tjul)
+all.tol #WA tolerance for all taxa in dataset
+#Looks like we get the same results
+```
+
+**Predict July temperatures and compare them to CCA site scores.**
+
+(I'm assuming we use our WA model to then predict July temperatures from the same species assemblages used to construct our model for this part of the assignment).
+
+Let's take a look at our predictions and compare them to the site scores.
+
+```{r}
+all.wa.mono <- rioja::WA(arctic.pollen, arctic.env$tjul, mono = TRUE) #Using all deshrinking options including mono
+all.pred.mono <- predict(all.wa.mono)
+all.pred.mono #Predictions
+```
+
+I wrote site scores into a csv file and read them back in so I could more easily work with them.
+
+
+```{r}
+site.scores <- read.csv("site.txt", sep = "")
+head(site.scores)
+head(all.pred.mono)
+```
+
+The sites scores along CCA1 appear to have similar relative values (to each other) to the relative values of the site predictions from our transfer function.
+
+
+**Compare apparent and cross-validated predictions of July temperatures**
+
+```{r}
+all.pred.cal <- rioja::crossval(all.wa.mono)
+all.pred.mono.cal <- predict(all.pred.cal) #Cross validated predictions
+all.pred.mono.cal #Cross-validated predictions
+#Compare apparent temperatures to cross-validated predictions
+plot(all.pred.mono.cal[,1] ~ arctic.env$tjul, main = "Observed vs. Predicted", ylab = "Predicted July Temp (C)", xlab = "Observed July Temp (C)")
+abline(1,1)
+```
+
+While the residuals between the observed temperatures and predicted values are quite large in certain instances, this model does appear to do an adequate job of predicting the July temperatures by using these species assemblages.
