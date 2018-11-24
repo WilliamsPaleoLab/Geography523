@@ -1,0 +1,85 @@
+---
+title: "Wk11_Lab_George"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+# Adds packages to R library
+library(rioja)
+library(palaeoSig)
+library(analogue)
+data(SWAP) # surface data
+data(RLGH) # diatom fossil data
+```
+
+*Question 1*
+```{r}
+# Test MAT, WA and WAPLS based reconstructions using randomTF
+WA_rtf <- palaeoSig::randomTF(spp = SWAP$spec, env = as.data.frame(SWAP$pH), fos = RLGH$spec, fun = WA)
+WAPLS_rtf <- palaeoSig::randomTF(spp = SWAP$spec, env = as.data.frame(SWAP$pH), fos = RLGH$spec, fun = WAPLS)
+MAT_rtf <- palaeoSig::randomTF(spp = as.data.frame(SWAP$spec), env = data.frame(pH = SWAP$pH), fos = as.data.frame(RLGH$spec), fun = MAT)
+
+# plots WA-based reconstruction
+plot(WA_rtf)
+title(main = "WA Reconstruction")
+
+# There's a bug and plot(WAPLS_RLF) is plotting incorrectly. Here's a histogram of the values and the significance.
+plot(WAPLS_rtf)
+hist(WAPLS_rtf$sim.ex, breaks = seq(min(WAPLS_rtf$sim.ex), max(WAPLS_rtf$sim.ex), length = 20))
+
+# Significance of WAPLS RTF
+WAPLS_rtf$sig
+
+# Plots MAT RTF
+plot(MAT_rtf)
+title(main = "MAT Reconstruction")
+
+```
+
+
+
+```{r}
+# Test WA-based reconstructions using obs.cor
+WA_obscor <- obs.cor(spp = SWAP$spec, env = SWAP$pH, fos = RLGH$spec)
+
+plot(WA_obscor)
+```
+The WA and MAT reconstructions are highly significant and explain more variance than all or most of the random environmental variables. The WAPLS explains more variance than many random envrionmental variables, but I am not certain whether it is significant because of plotting issues.
+
+
+
+**Question 4**
+
+```{r}
+# Model A
+xrange = 1:4
+yrange = list(1/4, 1/4, 1/4, 1/4)
+plot(x = xrange, y = yrange, type = "l")
+
+# Model B
+curve(x/10, 1, 4)
+
+# Model C
+model3 <- function(x) 12/(25*x)
+curve(12/(25*x),1, 4)
+```
+
+Model A has no bias towards any particular outcome. It predicts an equal probability of the die landing on any given side. Model B is biased towards higher rolls. As the value of the die increases, the probability of the die landing on that side increases linerally by 0.1. Model C is dramatically biased towards lower rolls. There is a 3x larger probability of rolling one than four.
+
+**Question 5**
+
+The results of the first set of rolls, #1’s = 25, #2’s = 25, #3’s = 25, #4’s = 25, indicate that Model A seems most likely, because the rolls are biased towards no one outcome. 
+
+The results of the second set of rolls, #1’s = 48, #2’s = 24, #3’s = 16, #4’s = 12, indicates that Model C is most likely, because the rolls are biased towards lower outcomes and decrease dramatically for higher rolls.
+
+```{r}
+plot(x = 1:4, y = c(0.25,.25,.25,.25), type = "l")
+plot(x = 1:4, y = c(0.48,.24,.16,.12), type = "l")
+```
+
+
