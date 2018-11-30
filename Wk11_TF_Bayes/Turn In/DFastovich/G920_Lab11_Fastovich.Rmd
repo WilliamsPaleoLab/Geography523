@@ -1,0 +1,77 @@
+---
+title: "G920_Lab11_Fastovich"
+author: "David Fastovich"
+date: "November 16, 2018"
+output: 
+  html_document:
+    theme: spacelab
+    highlight: pygments
+---
+
+```{r}
+library(rioja)
+library(palaeoSig)
+```
+
+### 1. Significance of pH reconstruction
+#### Test MAT, WA and WAPLS based reconstructions using randomTF.
+```{r}
+data("SWAP")
+data("RLGH")
+
+model.wa <- rioja::WA(sqrt(SWAP$spec), SWAP$pH) # Fitting WA model
+model.mat <- rioja::MAT(SWAP$spec, SWAP$pH) # Fitting MAT model
+model.wapls <- rioja::WAPLS(sqrt(SWAP$spec), SWAP$pH, npls = 2)
+
+ph.wapls <- predict(model.wapls, newdata = sqrt(RLGH$spec)) # Predicting pH using WAPLS
+ph.mat <- predict(model.mat, newdata = RLGH$spec) # Predicting pH using MAT
+ph.wa <- predict(model.wa, newdata = sqrt(RLGH$spec)) # Predicting pH using WA
+
+mat.tf <- randomTF(spp = SWAP$spec, env = data.frame(pH = SWAP$pH), fos = RLGH$spec, n = 999, fun = MAT, col = 1)
+wa.tf <- randomTF(spp = sqrt(SWAP$spec), env = data.frame(pH = SWAP$pH),fos = sqrt(RLGH$spec), n = 999, fun = WA, col = 1)
+wapls.tf <- randomTF(spp = sqrt(SWAP$spec), env = data.frame(pH = SWAP$pH),fos = sqrt(RLGH$spec), n = 999, fun = WAPLS, col = 2)
+
+par(mfrow = c(1, 3))
+plot(mat.tf)
+plot(wa.tf)
+plot(wapls.tf)
+```
+
+* The modern analogue technique is the only reconstruction method that indicates a significant downcore pH reconstruction.
+
+#### Test WA and WAPLS based reconstructions using obs.cor
+```{r}
+wa.obs <- obs.cor(spp = sqrt(SWAP$spec), env = SWAP$pH, fos = sqrt(RLGH$spec), n = 999)
+plot(wa.obs)
+```
+
+### 3. Bayesian inference
+#### Define events (in our 'has the sun gone nova' example, event A was: the sun has gone nova, event B was: the detector tells us that the sun has gone nova).
+
+1. Event A: You have the disease
+   Event B: The test determines disease status 
+   
+2.
+$P(B|A) = .67$
+$P(A) = 1 \times 10^-6$
+$P(B|A^C) = .87$
+$P(A^C) = 1 - 1 \times 10^-6 = .999999$
+
+$P(A|B) = \frac{(.67 \times (1 \times 10^-6))}{(.67 \times (1 \times 10^-6)) \times (.87 \times .999999))}$
+$P(A|B) = 7.2012 \times -07$
+
+
+### 4. Exercise 1 in Kruschke
+
+Table shows the x values evaluated using each model given
+
+Face | Model A | Model B | Model c
+---- | ------- | ------- | ----------------
+1    | .25     | .1      | $\frac{12}{25}$
+2    | .25     | .2      | $\frac{12}{50}$
+3    | .25     | .3      | $\frac{12}{75}$
+4    | .25     | .4      | $\frac{12}{100}$
+
+* Model A shows no bias. Each possible value of the dice that can potentially be on the bottom after a role is given the probability of .25.
+* Model B suggests bias towards larger values on the die. For instance, 4 is predicted to have a 40% chance that it will be the bottom face after any given roll. In contrast, 1 (the lowest value on the die) only has a 10% chance of being on the bottom of the die.
+* Model C shows bias that is inverse to that of Model B, smaller values have a greater likelihood of being the bottom face. 

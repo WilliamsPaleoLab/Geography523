@@ -1,0 +1,430 @@
+---
+title: "Untitled"
+author: "David Fastovich"
+date: "November 9, 2018"
+output: 
+  html_document:
+    theme: spacelab
+    highlight: pygments
+---
+
+```{r, message=FALSE, warning=FALSE, results='hide'}
+library(rioja)
+library(analogue)
+library(neotoma)
+library(palaeoSig)
+library(doParallel)
+library(foreach)
+library(doSNOW)
+```
+
+
+### Part 1. Comparison of transfer functions
+```{r}
+data("SWAP") # Loading data
+data("RLGH") # Loading data
+```
+
+#### Determine the appropriate WAPLS model.
+```{r, message=FALSE, warning=FALSE, results='hide'}
+model <- WAPLS(SWAP$spec, SWAP$pH, npls = 7) # Building WAPLS model with 7 components to see how r^2 changes
+rioja::crossval(model) 
+
+model.good <- WAPLS(SWAP$spec, SWAP$pH, npls = 2)
+```
+
+* According to cross validation after 2 pls components the model begins to overfit.
+
+```{r, message=FALSE, warning=FALSE, results='hide'}
+model.wa <- WA(SWAP$spec, SWAP$pH) # Fitting WA model
+model.mat <- MAT(SWAP$spec, SWAP$pH) # Fitting MAT model
+```
+
+#### Compare the reconstructions (scatter plots and time series plots).
+```{r, message=FALSE, warning=FALSE}
+ph.wapls <- predict(model.good, newdata = RLGH$spec) # Predicting pH using WAPLS
+ph.mat <- predict(model.mat, newdata = RLGH$spec) # Predicting pH using MAT
+ph.wa <- predict(model.wa, newdata = RLGH$spec) # Predicting pH using WA
+
+# Plotting the different reconstructions
+plot(x = RLGH$depths[,2], y = as.vector(unname(ph.wapls$fit[,2])), type = "l", ylim = c(4.6, 5.5))
+lines(x = RLGH$depths[,2], y = as.vector(unname(ph.mat$fit[,2])), col = "red")
+lines(x = RLGH$depths[,2], y = as.vector(unname(ph.wa$fit[,2])), col = "green")
+legend("bottomright", legend = c("WA-PLS", "MAT", "WA"), col = c("black", "red", "green"), lty = 1)
+
+# Combining all predcited pH values from the three different reconstructions
+all.ph <- data.frame(wa = ph.wa$fit[,2],
+                     mat = ph.mat$fit[,2],
+                     wa.pls = ph.wapls$fit[,2])
+
+# Scatterplot of all possible pH reconstruction pairs
+pairs(all.ph, upper.panel = NULL)
+```
+
+#### Calculate correlations among the three reconstructions
+```{r}
+cor(all.ph)
+```
+
+#### How many different analogues does MAT use.
+* By default MAT uses 5 analogues
+
+### Part 2. Spatial autocorrelation
+```{r}
+data("arctic.env") # Loading arctic env data
+data("arctic.pollen") # Loading arctic pollen data
+```
+
+#### We want to test transfer functions for July temperature and July sunshine.
+#### Run and cross-validate MAT transfer functions.
+```{r, message=FALSE, warning=FALSE, results='hide'}
+mat.tjul <- rioja::MAT(arctic.pollen, arctic.env$tjul, dist.method = "sq.chord", lean = FALSE) # making the tjul MAT model
+mat.tjul.cross <- rioja::crossval(mat.tjul) # Crossvalidating the tjul MAT model
+mat.tjul.perf <- rioja::performance(mat.tjul.cross)
+mat.sjul <- rioja::MAT(arctic.pollen, arctic.env$sjul, dist.method = "sq.chord", lean = FALSE) # Making the sjul MAT model
+mat.sjul.cross <- rioja::crossval(mat.sjul) # Crossvalidating the sjul MAT model
+mat.sjul.perf <- rioja::performance(mat.sjul.cross)
+```
+
+#### Use random data to train the transfer functions `runif()`.
+```{r, message=FALSE, warning=FALSE}
+rand.env <- matrix(data = runif(n = (999 * nrow(arctic.env))), nrow = nrow(arctic.env), ncol = 999) # Generating random data
+
+mat.random <- function(x, y) {
+  temp.mat <- rioja::MAT(y, x, dist.method = "sq.chord", lean = FALSE)
+  temp.cross <- rioja::crossval(temp.mat)
+  temp.perf <- rioja::performance(temp.cross)
+  temp.perf$crossval[5, 2]
+} # Function to do 999 replicates in parallel
+
+# Starting workers and calculating the 999 MAT model r^2 in parallel
+# For tjul
+no_cores <- detectCores()
+cl <- makeCluster(no_cores)
+registerDoSNOW(cl)
+pb <- txtProgressBar(max = 999, style = 3)
+progress <- function(n) setTxtProgressBar(pb, n)
+opts <- list(progress = progress)
+
+r.2.mat.tjul <- foreach(i = 1:999,
+            .combine = c,
+            .packages = "rioja",
+            .options.snow = opts) %dopar%
+            {
+              mat.random(y = arctic.pollen, x = rand.env[,i])
+            }
+
+close(pb)       
+stopCluster(cl)
+
+# Starting workers and calculating the 999 MAT model r^2 in parallel
+# For sjul
+no_cores <- detectCores()
+cl <- makeCluster(no_cores)
+registerDoSNOW(cl)
+pb <- txtProgressBar(max = 999, style = 3)
+progress <- function(n) setTxtProgressBar(pb, n)
+opts <- list(progress = progress)
+
+r.2.mat.sjul <- foreach(i = 1:999,
+            .combine = c,
+            .packages = "rioja",
+            .options.snow = opts) %dopar% {
+              mat.random(y = arctic.pollen, x = rand.env[,i])
+            }
+
+close(pb)
+stopCluster(cl)
+```
+
+#### Use spatially structured random data to train the transfer function.
+```{r, message=FALSE, warning=FALSE}
+# Loading in spatially random data
+sjul.rand.spat <- readRDS("sjul.RDS")
+tjul.rand.spat <- readRDS("tjul.RDS")
+
+# Removing duplicate locations from the species data
+dup <- duplicated(paste(as.character(arctic.env$Latitude), as.character(arctic.env$Longitude)))
+my.species.new <- arctic.pollen[!dup,]
+
+# Starting workers and calculating the 999 MAT model r^2 in parallel for spatially correlated random data
+# For tjul
+no_cores <- detectCores()
+cl <- makeCluster(no_cores)
+registerDoSNOW(cl)
+pb <- txtProgressBar(max = 999, style = 3)
+progress <- function(n) setTxtProgressBar(pb, n)
+opts <- list(progress = progress)
+
+r.2.mat.tjul.spat <- foreach(i = 1:999,
+            .combine = rbind,
+            .packages = c("rioja", "sp"),
+            .options.snow = opts) %dopar% {
+              mat.random(y = my.species.new, x = tjul.rand.spat[[i]])
+            }
+
+close(pb)
+stopCluster(cl)
+
+# Starting workers and calculating the 999 MAT model r^2 in parallel for spatially correlated random data
+# For sjul
+no_cores <- detectCores()
+cl <- makeCluster(no_cores)
+registerDoSNOW(cl)
+pb <- txtProgressBar(max = 999, style = 3)
+progress <- function(n) setTxtProgressBar(pb, n)
+opts <- list(progress = progress)
+
+r.2.mat.sjul.spat <- foreach(i = 1:999,
+            .combine = rbind,
+            .packages = c("rioja", "sp"),
+            .options.snow = opts) %dopar% {
+              mat.random(y = my.species.new, x = sjul.rand.spat[[i]])
+            }
+
+close(pb)
+stopCluster(cl)
+```
+
+#### We want to test transfer functions for July temperature and July sunshine.
+#### Run and cross-validate WA transfer functions.
+```{r, message=FALSE, warning=FALSE, results='hide'}
+wa.tjul <- rioja::WA(arctic.pollen, arctic.env$tjul, mono = TRUE) # making the tjul MAT model
+wa.tjul.cross <- rioja::crossval(wa.tjul) # Crossvalidating the tjul MAT model
+wa.tjul.perf <- rioja::performance(wa.tjul.cross)
+wa.sjul <- rioja::WA(arctic.pollen, arctic.env$sjul, mono = TRUE) # Making the sjul MAT model
+wa.sjul.cross <- rioja::crossval(wa.sjul) # Crossvalidating the sjul MAT model
+wa.sjul.perf <- rioja::performance(wa.sjul.cross)
+```
+
+#### Use random data to train the transfer functions `runif()`.
+```{r, message=FALSE, warning=FALSE}
+wa.random <- function(x, y) {
+  temp.wa <- rioja::WA(y, x, mono = TRUE)
+  temp.cross <- rioja::crossval(temp.wa)
+  temp.perf <- rioja::performance(temp.cross)
+  temp.perf$crossval[1,2]
+}
+
+# Starting workers and calculating the 999 WA model r^2 in parallel
+# For tjul
+no_cores <- detectCores()
+cl <- makeCluster(no_cores)
+registerDoSNOW(cl)
+pb <- txtProgressBar(max = 999, style = 3)
+progress <- function(n) setTxtProgressBar(pb, n)
+opts <- list(progress = progress)
+
+r.2.wa.tjul <- foreach(i = 1:999,
+            .combine = c,
+            .packages = "rioja",
+            .options.snow = opts) %dopar% {
+              wa.random(y = arctic.pollen, x = rand.env[,i])
+            }
+
+close(pb)
+stopCluster(cl)
+
+# Starting workers and calculating the 999 WA model r^2 in parallel
+# For sjul
+no_cores <- detectCores()
+cl <- makeCluster(no_cores)
+registerDoSNOW(cl)
+pb <- txtProgressBar(max = 999, style = 3)
+progress <- function(n) setTxtProgressBar(pb, n)
+opts <- list(progress = progress)
+
+r.2.wa.sjul <- foreach(i = 1:999,
+            .combine = c,
+            .packages = "rioja",
+            .options.snow = opts) %dopar% {
+              wa.random(y = arctic.pollen, x = rand.env[,i])
+            }
+
+close(pb)
+stopCluster(cl)
+
+```
+
+#### Use spatially structured random data to train the transfer function.
+```{r, message=FALSE, warning=FALSE}
+# Starting workers and calculating the 999 MAT model r^2 in parallel for spatially correlated random data
+# For tjul
+no_cores <- detectCores()
+cl <- makeCluster(no_cores)
+registerDoSNOW(cl)
+pb <- txtProgressBar(max = 999, style = 3)
+progress <- function(n) setTxtProgressBar(pb, n)
+opts <- list(progress = progress)
+
+r.2.wa.tjul.spat <- foreach(i = 1:999,
+            .combine = c,
+            .packages = c("rioja", "sp"),
+            .options.snow = opts) %dopar% {
+              wa.random(y = my.species.new, x = tjul.rand.spat[[i]])
+            }
+
+close(pb)
+stopCluster(cl)
+
+# Starting workers and calculating the 999 WA model r^2 in parallel for spatially correlated random data
+# For sjul
+no_cores <- detectCores()
+cl <- makeCluster(no_cores)
+registerDoSNOW(cl)
+pb <- txtProgressBar(max = 999, style = 3)
+progress <- function(n) setTxtProgressBar(pb, n)
+opts <- list(progress = progress)
+
+r.2.wa.sjul.spat <- foreach(i = 1:999,
+            .combine = c,
+            .packages = c("rioja", "sp"),
+            .options.snow = opts) %dopar% {
+              wa.random(y = my.species.new, x = sjul.rand.spat[[i]])
+            }
+
+close(pb)
+stopCluster(cl)
+```
+
+#### Compare cross validated $r^2$ of random transfer functions to real transfer functions.
+```{r}
+par(mfrow = c(2, 4))
+# Histograms of r^2 for MAT
+hist(r.2.mat.tjul, main = "MAT tjul random")
+abline(v = max(mat.tjul.perf$crossval[5,2]), col = "red")
+hist(r.2.mat.sjul, main = "MAT sjul random")
+abline(v = max(mat.sjul.perf$crossval[5,2]), col = "red")
+hist(r.2.mat.tjul.spat, main = "MAT tjul spatial random")
+abline(v = max(mat.tjul.perf$crossval[5,2]), col = "red")
+hist(r.2.mat.sjul.spat, main = "MAT sjul spatial random")
+abline(v = max(mat.sjul.perf$crossval[5,2]), col = "red")
+
+# Histograms of r^2 for WA
+hist(r.2.wa.tjul, main = "WA tjul random")
+abline(v = max(wa.tjul.perf$crossval[,2]), col = "red")
+hist(r.2.wa.sjul, main = "WA sjul random")
+abline(v = max(wa.sjul.perf$crossval[,2]), col = "red")
+hist(r.2.wa.tjul.spat, main = "WA tjul spatial random")
+abline(v = max(wa.tjul.perf$crossval[,2]), col = "red")
+hist(r.2.wa.sjul.spat, main = "WA sjul spatial random")
+abline(v = max(wa.sjul.perf$crossval[,2]), col = "red")
+```
+
+### Part 3.Assessment of transfer functions
+#### Reconstruct July temperature and January temperature for your site using MAT, WA and WAPLS.
+```{r, message=FALSE, warning=FALSE, results='hide'}
+# Getting the data and turning the counts into proportions
+tul.site <- get_site("*tulane*")
+tul.dataset <- get_dataset(tul.site)
+tul.down <- get_download(tul.dataset)
+tul.poll <- tul.down$`19620`$counts
+tul.perc <- (tul.poll/rowSums(tul.poll))
+
+# Compiling the taxa to match the column names in the NAMPD
+tul.comp <- compile_taxa(tul.perc, list.name = "WhitmoreFull")
+tul.comp <- tul.comp[,-41] # Removing the "Other" column
+
+# Loading NAMPD data
+data("Climate")
+data("Pollen")
+
+# Working the data to ensure that the NAMPD only has taxa that occur in the fossil pollen dataset. Then turning this into proportions
+colnames(Climate)[1:3] <- c('tjan','tfeb','tmar') # There is an issue with the Climate dataset - the first three columns are named incorrectly
+Pollen.sel <- Pollen[,which(colnames(Pollen) %in% colnames(tul.comp))] # Selecting the taxa that are present in the fossil pollen dataset
+Pollen.sel[is.na(Pollen.sel)] <- 0
+Pollen.sel.prop <- (Pollen.sel/rowSums(Pollen.sel))
+
+# Making the MAT, WA, WAPLS model using square root transformed NAMPD pollen and climate data for tjul
+tjul.mat.fit <- rioja::MAT(sqrt(Pollen.sel.prop), Climate$tjul)
+tjul.mat.predict <- predict(tjul.mat.fit, newdata = sqrt(tul.comp))
+
+tjul.wa.fit <- rioja::WA(sqrt(Pollen.sel.prop), Climate$tjul, mono = TRUE)
+tjul.wa.predict <- predict(tjul.wa.fit, newdata = sqrt(tul.comp))
+
+tjul.wapls.fit <- rioja::WAPLS(sqrt(Pollen.sel.prop), Climate$tjul, npls = 2)
+tjul.wapls.predict <- predict(tjul.wapls.fit, newdata = sqrt(tul.comp))
+
+# Making the MAT, WA, WAPLS model using square root transformed NAMPD pollen and climate data for tjan
+tjan.mat.fit <- rioja::MAT(sqrt(Pollen.sel.prop), Climate$tjan)
+tjan.mat.predict <- predict(tjan.mat.fit, newdata = sqrt(tul.comp))
+
+tjan.wa.fit <- rioja::WA(sqrt(Pollen.sel.prop), Climate$tjan, mono = TRUE)
+tjan.wa.predict <- predict(tjan.wa.fit, newdata = sqrt(tul.comp))
+
+tjan.wapls.fit <- rioja::WAPLS(sqrt(Pollen.sel.prop), Climate$tjan, npls = 2)
+tjan.wapls.predict <- predict(tjan.wapls.fit, newdata = sqrt(tul.comp))
+
+# Plotting the three different temperature reconstructions for tjul
+plot(x = tul.down$`19620`$chronologies$`Jacobson et al. 2012`$age, y = tjul.mat.predict$fit[,1], type = "l", ylim = c(-30, 35), xlab = "Age (ka)", ylab = "Temperature", main = "July (solid) January (dashed) Temperature")
+lines(x = tul.down$`19620`$chronologies$`Jacobson et al. 2012`$age, y = tjul.wa.predict$fit[,3], col = "red")
+lines(x = tul.down$`19620`$chronologies$`Jacobson et al. 2012`$age, y = tjul.wapls.predict$fit[,2], col = "blue")
+lines(x = tul.down$`19620`$chronologies$`Jacobson et al. 2012`$age, y = tjan.mat.predict$fit[,1], col = "black", lty = 2)
+lines(x = tul.down$`19620`$chronologies$`Jacobson et al. 2012`$age, y = tjan.wa.predict$fit[,3], col = "red", lty = 2)
+lines(x = tul.down$`19620`$chronologies$`Jacobson et al. 2012`$age, y = tjan.wapls.predict$fit[,2], col = "blue", lty = 2)
+legend("bottomright", legend = c("MAT", "WA", "WAPLS"), col = c("black", "red", "blue"), lty = c(1, 1, 1))
+```
+
+Compare the reconstructions among methods
+  * MAT provides the warmest temperature estimates for both January and July
+  * MAT temperatures have a large amount of rapid changes for both January and July
+  * WA and WAPLS are highly consistent both in absolute temperature estimates and in temperature changes across the entire record
+  * WAPLS is about a degree warmer than WA for both July and January temperature
+
+Are there phases with agreement and other where reconstructions disagree? How would you interpret this?
+  * The patterns of temperature change from the beginning of the record to ~40 ka are highly consistent across temperature reconstructions, but the estimates of temperature vary. This indicates that there were likely large environmental changes at this time, but the temperature change during this period is uncertain. MAT highly differs from both WA and WAPLS in patter, while WA and WAPLS have nearly identical temperature records. 
+  
+#### Estimate correlations of January and July temperature for each method.
+```{r}
+cor(tjul.mat.predict$fit[,1], tjan.mat.predict$fit[,1])
+cor(tjul.wa.predict$fit[,3], tjan.wa.predict$fit[,3])
+cor(tjul.wapls.predict$fit[,2], tjan.wapls.predict$fit[,2])
+```
+
+#### Compare the correlation of WA optima of the two reconstructions to correlations between July and January temperature
+```{r}
+cor(tjan.wa.fit$coefficients, tjul.wa.fit$coefficients)
+```
+
+* The species optima for tjan and tjul are highly correlated. This likely reflects the species response to the coldest temperatures of the year and the warmest, perhaps encompassing the entire temperature envelope for each species.
+
+#### Assess analogue quality (Squared chord distance to the closest analogue in the training set)
+```{r}
+d.min.tjul <- apply(tjul.mat.predict$dist.n, 1, min) # Extracting minimum dissimilarity scores for tjul
+d.min.tjan <- apply(tjan.mat.predict$dist.n, 1, min) # Extracting minimum dissimilarity scores for tjan
+
+plot(x = tul.down$`19620`$chronologies$`Jacobson et al. 2012`$age, y = d.min.tjul, type = "l", xlab = "Age (ka)", ylab = "Minimum Dissimilarity", ylim = c(0, 2))
+```
+
+* Minimum dissimilarity average 0.76 and exceed 1.0 several times throughout the Lake Tulane records indicating that there are periods where no analog communities were present on the landscape. This would decrease confidence in the MAT temperature reconstruction, and suggest that global transfer functions may be a better fit for this lake.
+
+
+#### Compare analogue quality and the standard deviation of the analogues chosen for each sample
+```{r}
+par(mfrow = c(2, 1))
+plot(x = tul.down$`19620`$chronologies$`Jacobson et al. 2012`$age, y = tjul.mat.predict$diagnostics$Stdev, col = "red", ylab = "Standard Deviation", ylim = c(0, 7), type = "l", xlab = "Age (ka)")
+plot(x = tul.down$`19620`$chronologies$`Jacobson et al. 2012`$age, y = d.min.tjul, type = "l", xlab = "Age (ka)", ylab = "Minimum Dissimilarity", ylim = c(0, 2))
+```
+
+* Temperature standard deviation appears to remain low as minimum dissimilarity is greatest, and as minimum dissimilarity falls standard deviation begins to increase.
+
+#### Compare the correlation of July and January temperature of all analogues chosen to the correlation of the MAT based reconstructions.
+```{r}
+# Correlation of analogues to tjul
+cor(data.frame(predicted = tjul.mat.predict$fit[,1],
+               n01 = tjul.mat.predict$x.n[,1], 
+               n02 = tjul.mat.predict$x.n[,2], 
+               n03 = tjul.mat.predict$x.n[,3], 
+               n04 = tjul.mat.predict$x.n[,4], 
+               n05 = tjul.mat.predict$x.n[,5]))
+
+# Correlation of analogues to tjan
+cor(data.frame(predicted = tjan.mat.predict$fit[,1],
+               n01 = tjan.mat.predict$x.n[,1], 
+               n02 = tjan.mat.predict$x.n[,2], 
+               n03 = tjan.mat.predict$x.n[,3], 
+               n04 = tjan.mat.predict$x.n[,4], 
+               n05 = tjan.mat.predict$x.n[,5]))
+```
+
+* The correlation for the best analogue to predicted temperatures is analogue 5, with a value of 0.78. The lowest correlation is for analogue 1, with a value of 0.51. Interestingly, analogue 5 (the best analogue) has a lower correlation to tjan than tjul, while the worst analogue has a higher correlation to tjan than tjul.
