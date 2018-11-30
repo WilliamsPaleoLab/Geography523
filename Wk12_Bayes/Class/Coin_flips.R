@@ -29,8 +29,8 @@ posterior.fun <- function(probs,n,h,prior.n,prior.h){
   
   posterior <- L*prior/nc
   
-  output <- data.frame(Posterior=posterior,Prior=prior,Likelihood = L)
-  matplot(probs,output,type='l',xlab='',ylab='')
+  output <- data.frame(parameter=probs,Posterior=posterior,Prior=prior,Likelihood = L)
+  matplot(output$parameter,output[,2:4],type='l',xlab='',ylab='')
   mtext(side=1,line=2.2,font=2,expression(Theta),cex=1)
   mtext(side=2,line=2.2,font=2,cex=1,'Probability')
   legend('topleft',col=1:3,lty=1:3,legend=c('Posterior','Prior','Likelihood'))
