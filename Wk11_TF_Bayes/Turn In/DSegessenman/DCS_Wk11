@@ -1,0 +1,133 @@
+#Geography 920 - Week 11 Bayesian
+#Daniel Segessenman
+
+Question 1:
+
+#Load relevant packages
+library(palaeoSig)
+library(Rioja)
+
+#Get dataset
+data(SWAP)
+data(RLGH)
+
+#Use randomTF function from palaeoSig to test MAT, WA, and WAPLS
+swap.mat_test <- randomTF(spp = sqrt(SWAP$spec), env = data.frame(pH = SWAP$pH),
+    fos = sqrt(RLGH$spec), n = 999, fun = MAT, col = 1)
+swap.mat_test$sig
+plot.palaeoSig(swap.mat_test, "pH")
+
+swap.wa_test <- randomTF(spp = sqrt(SWAP$spec), env = data.frame(pH = SWAP$pH),
+    fos = sqrt(RLGH$spec), n = 999, fun = WA, col = 1)
+swap.wa_test$sig
+plot.palaeoSig(swap.wa_test, "pH")
+
+swap.wapls_test <- randomTF(spp = sqrt(SWAP$spec), env = data.frame(pH = SWAP$pH),
+    fos = sqrt(RLGH$spec), n = 999, fun = WAPLS, col = 1)
+swap.wapls_test$sig
+plot.palaeoSig(swap.wapls_test, "pH")
+
+#Use obs.cor function from palaeoSig to test WA
+swap.wa_obscor <- obs.cor(spp = sqrt(SWAP$spec), env = SWAP$pH, fos = sqrt(RLGH$spec))
+swap.wa_obscor$sig
+plot(swap.wa_obscor, which=1)
+plot(swap.wa_obscor, which=2)
+
+
+#Question 2:
+
+#Load Packages for Analysis
+library(neotoma)
+library(vegan)
+library(analogue)
+library(rioja)
+
+#Load in climate data and pollen data from NAMPD (North American Pollen Database)
+#via Analogue package
+data(Climate)
+data(Pollen)
+Pollen <- replace(Pollen, is.na(Pollen), 0)
+Climate <- replace(Climate, is.na(Climate), 0)
+
+#Fix error in Climate data
+colnames(Climate)[1:3] <- c('tjan', 'tfeb', 'tmar')
+
+#Get Mendota data from Neotoma
+mend_ds <- get_dataset(1679)
+mend_data <- get_download(mend_ds)
+
+#Extract Pollen data from Mendota data and convert it to proportion
+mend_pol <- mend_data[[1]]
+
+#Convert pollen counts to percents for the modern and fossil (mendota) data
+mend_pol_pct <- analogue::tran(x = mend_pol$counts, method = 'percent')
+nampd_pol_pct <- analogue::tran(x = Pollen, method = 'percent')
+
+#Compare taxa between Mendota pollen and NAMPD and remove those that are not in
+#both databases
+mend_pol_comp <- compile_taxa(mend_pol_pct, list = "WhitmoreFull")
+fossil <- mend_pol_comp
+fossil <- fossil[, -32] #removes 'other' column
+fossil <- replace(fossil, is.na(fossil), 0)
+modern <- nampd_pol_pct[,which(colnames(nampd_pol_pct) %in% colnames(fossil))]
+
+#Test MAT, WA, and WAPLS for July temp and January temp
+tjul.mat_test <- randomTF(spp = sqrt(modern), env = data.frame(t_jul = Climate$tjul),
+    fos = sqrt(fossil), n = 999, fun = MAT, col = 1)
+tjul.mat_test$sig
+plot.palaeoSig(tjul.mat_test, "t_jul")
+
+tjul.wa_test <- randomTF(spp = sqrt(modern), env = data.frame(t_jul = Climate$tjul),
+    fos = sqrt(fossil), n = 999, fun = WA, col = 1)
+tjul.wa_test$sig
+plot.palaeoSig(tjul.wa_test, "t_jul")
+
+tjul.wapls_test <- randomTF(spp = sqrt(modern), env = data.frame(t_jul = Climate$tjul),
+    fos = sqrt(fossil), n = 999, fun = WAPLS, col = 1)
+tjul.wapls_test$sig
+plot.palaeoSig(tjul.wapls_test, "t_jul")
+
+tjan.mat_test <- randomTF(spp = sqrt(modern), env = data.frame(jan_mean = Climate$tjan),
+    fos = sqrt(fossil), n = 999, fun = MAT, col = 1)
+tjan.mat_test$sig
+plot.palaeoSig(janmean.mat_test, "t_jan")
+
+tjan.wa_test <- randomTF(spp = sqrt(modern), env = data.frame(jan_mean = Climate$tjan),
+    fos = sqrt(fossil), n = 999, fun = WA, col = 1)
+tjan.wa_test$sig
+plot.palaeoSig(tjan.wa_test, "t_jan")
+
+tjan.wapls_test <- randomTF(spp = sqrt(modern), env = data.frame(jan_mean = Climate$tjan),
+    fos = sqrt(fossil), n = 999, fun = WAPLS, col = 1)
+tjan.wapls_test$sig
+plot.palaeoSig(tjan.wapls_test, "t_jan")
+
+#Use obs.cor function from palaeoSig to test WA for july temp and january temp
+tjul.wa_obscor <- obs.cor(spp = sqrt(modern), env = Climate$tjul, fos = sqrt(fossil))
+tjul.wa_obscor$sig
+plot(tjul.wa_obscor, which=1)
+plot(tjul.wa_obscor, which=2)
+
+tjan.wa_obscor <- obs.cor(spp = sqrt(modern), env = Climate$tjan, fos = sqrt(fossil))
+tjan.wa_obscor$sig
+plot(tjan.wa_obscor, which=1)
+plot(tjan.wa_obscor, which=2)
+
+#There is an error when running the obs.cor above... I tried many different things
+#but could not evaluate the error
+
+
+Question 3:
+
+Part 1:
+
+Event A: 1/1,000,000 People get a disease
+Event A': 999,999/1,000,000 People do not get disease
+Event B: Test correctly tests 67/100 times for those individuals who have disease
+Event B': False positive of 33/100 for medical test
+
+Part 2:
+
+P(Test Positive and have disease) = (0.67 * .000001) / (.67 * .000001 + .33 * .999999)
+Probability that the test is positive and you actually have the disease:
+2.030301e-06 (Very Low!)
