@@ -1,0 +1,335 @@
+---
+title: "Keeve Lab 12"
+output: html_notebook
+---
+
+
+```{r}
+bin.prob <- function(p,n,h){
+  probab  <- factorial(n)*p^h*(1-p)^(n-h)/(factorial(h)*factorial(n-h))
+}
+
+normalizing.fun <- function(n,h,prior.n,prior.h){
+  beta <- prior.n - prior.h+1
+  prior.h <- prior.h+1
+  nc <- factorial(n)*beta(h+prior.h,n-h+beta)/(factorial(h)*factorial(n-h)*beta(prior.h,beta))
+}
+
+
+
+posterior.fun <- function(probs,n,h,prior.n,prior.h){
+  
+  #define additional variables
+  beta <- prior.n - prior.h+1
+  alpha <- prior.h+1
+  
+  #Likelihiood
+  L <- dbinom(h,n,probs)
+  
+  #Prior
+  prior <- dbeta(probs,alpha,beta)
+  prior <- prior/sum(prior)
+  #normalizing constant
+  nc <- factorial(n)*beta(h+alpha,n-h+beta)/(factorial(h)*factorial(n-h)*beta(alpha,beta))
+  
+  posterior <- L*prior/nc
+  
+  output <- data.frame(parameter=probs,Posterior=posterior,Prior=prior,Likelihood = L)
+  matplot(output$parameter,output[,2:4],type='l',xlab='',ylab='')
+  mtext(side=1,line=2.2,font=2,expression(Theta),cex=1)
+  mtext(side=2,line=2.2,font=2,cex=1,'Probability')
+  legend('topleft',col=1:3,lty=1:3,legend=c('Posterior','Prior','Likelihood'))
+  return(output)
+}
+
+# Observations for LIkelihood
+n <- 20
+h <- 15
+
+# Coin flips for prior
+prior.n <- 20
+prior.h <- 10 
+
+probs <-  seq(0,1,0.01)
+
+outp <- posterior.fun(probs=probs,
+                      n = n,
+                      h = h,
+                      prior.n = prior.n,
+                      prior.h = prior.h)
+```
+
+##Exercise 1
+Mode of Posterior is about halfway between that of Prior and Likelihood, with Prior sitting around 0.5 and Likelihood around 0.7. The number of coin flips shifts the balance between strategy. For example, having more coin flips weights Likelihood higher.
+
+Changing coin flips for Prior:
+```{r}
+# 0 Coin flips for prior
+prior.n <- 0
+prior.h <- 0 
+
+probs <-  seq(0,1,0.01)
+
+outp <- posterior.fun(probs=probs,
+                      n = n,
+                      h = h,
+                      prior.n = prior.n,
+                      prior.h = prior.h)
+```
+```{r}
+# Half the data
+prior.n <- 20/2
+prior.h <- 10/2 
+
+probs <-  seq(0,1,0.01)
+
+outp <- posterior.fun(probs=probs,
+                      n = n,
+                      h = h,
+                      prior.n = prior.n,
+                      prior.h = prior.h)
+```
+
+```{r}
+# Twice the data
+prior.n <- 20*2
+prior.h <- 10*2 
+
+probs <-  seq(0,1,0.01)
+
+outp <- posterior.fun(probs=probs,
+                      n = n,
+                      h = h,
+                      prior.n = prior.n,
+                      prior.h = prior.h)
+```
+
+Changing data:
+```{r}
+
+
+# 4 coin flips
+n <- 4
+h <- 0.75*n
+
+# Coin flips for prior
+prior.n <- 20
+prior.h <- 10 
+
+probs <-  seq(0,1,0.01)
+
+outp <- posterior.fun(probs=probs,
+                      n = n,
+                      h = h,
+                      prior.n = prior.n,
+                      prior.h = prior.h)
+```
+
+```{r}
+# Twice the number of prior flips
+
+# Coin flips for prior
+prior.n <- 20
+prior.h <- 10 
+
+
+n <- prior.n*2
+h <- 0.75*n
+
+
+
+probs <-  seq(0,1,0.01)
+
+outp <- posterior.fun(probs=probs,
+                      n = n,
+                      h = h,
+                      prior.n = prior.n,
+                      prior.h = prior.h)
+```
+
+```{r}
+# Five times the number of prior flips
+
+# Coin flips for prior
+prior.n <- 20
+prior.h <- 10 
+
+
+n <- prior.n*5
+h <- 0.75*n
+
+
+
+probs <-  seq(0,1,0.01)
+
+outp <- posterior.fun(probs=probs,
+                      n = n,
+                      h = h,
+                      prior.n = prior.n,
+                      prior.h = prior.h)
+```
+
+
+Divide into two parts:
+```{r}
+
+prior.n <- 20
+prior.h <- 10 
+
+
+n <- 20
+h <- 0.75*n
+
+
+
+
+probs <-  seq(0,1,0.01)
+
+outp <- posterior.fun(probs=probs,
+                      n = n,
+                      h = h,
+                      prior.n = prior.n,
+                      prior.h = prior.h)
+```
+
+```{r}
+prior.n <- 40
+prior.h <- 25 
+
+
+n <- 20
+h <- 0.75*n
+
+
+
+
+probs <-  seq(0,1,0.01)
+
+outp <- posterior.fun(probs=probs,
+                      n = n,
+                      h = h,
+                      prior.n = prior.n,
+                      prior.h = prior.h)
+```
+
+```{r}
+prior.n <- 20
+prior.h <- 10 
+
+
+n <- 40
+h <- 0.75*n
+
+
+
+
+probs <-  seq(0,1,0.01)
+
+outp <- posterior.fun(probs=probs,
+                      n = n,
+                      h = h,
+                      prior.n = prior.n,
+                      prior.h = prior.h)
+```
+
+
+#Exercise 2
+Getting 2015 population data (including Washington DC):
+```{r}
+library(usmap)
+data("statepop")
+```
+```{r}
+statepop$num <- seq(from=1,to=51,by=1)
+```
+Pulls random start state with population:
+```{r}
+current_state <- ceiling(runif(n=1,min=0,max=51))
+
+if(current_state %in% statepop$num) {
+  current_state_name <- statepop[current_state,"full"]
+  current_state_pop <- statepop[current_state,"pop_2015"]
+  
+  current_state_info <- as.vector(x=c(current_state_name,current_state_pop))
+  current_state_info
+}
+```
+
+```{r}
+new_state <- ceiling(runif(n=1,min=0,max=51))
+
+if(new_state %in% statepop$num && new_state != current_state) {
+  new_state_name <- statepop[new_state,"full"]
+  new_state_pop <- statepop[new_state,"pop_2015"]
+  
+  new_state_info <- as.vector(x=c(new_state_name,new_state_pop))
+  new_state_info
+} 
+```
+```{r}
+
+while (i < 10000) {
+
+  i = i+1
+  
+  
+  states_visited <- c()
+  
+  
+  current_state <- ceiling(runif(n=1,min=0,max=51))
+
+  
+  current_state_name <- statepop[current_state,"full"]
+  current_state_pop <- statepop[current_state,"pop_2015"]
+  
+  current_state_info <- as.vector(x=c(current_state_name,current_state_pop))
+  current_state_info
+
+  
+  states_visited <- c(states_visited,current_state_name)
+  
+  
+  
+  new_state <- ceiling(runif(n=1,min=0,max=51))
+
+  
+  new_state_name <- statepop[new_state,"full"]
+  new_state_pop <- statepop[new_state,"pop_2015"]
+  
+  new_state_info <- as.vector(x=c(new_state_name,new_state_pop))
+  new_state_info
+  
+  
+  pop_ratio <- new_state_pop/current_state_pop
+  
+  if (pop_ratio >= 1) {
+    
+    current_state_info <- new_state_info
+    
+    states_visited <- c(states_visited,current_state_name)
+    
+
+    new_state <- ceiling(runif(n=1,min=0,max=51))
+
+    new_state_name <- statepop[new_state,"full"]
+    new_state_pop <- statepop[new_state,"pop_2015"]
+  
+    new_state_info <- as.vector(x=c(new_state_name,new_state_pop))
+    new_state_info
+    
+    
+  }
+  
+  
+  
+}
+```
+```{r}
+states_visited <- c()
+#append(x=states_visited,values=c("Montana","Florida","Illinois","Pennsylvania"))
+states_visited <- c(states_visited,"Montana")
+states_visited_new <- c(states_visited,"Florida")
+```
+
+
+
