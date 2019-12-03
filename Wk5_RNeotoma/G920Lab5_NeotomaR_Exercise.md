@@ -38,43 +38,46 @@ This should open a new web page in your browser with a returned JSON object.  Fo
 
 Note that it is possible for an API to run successfully but return no data!  For example, try:
 
-`api.neotomadb.org/v1/data/sites?sitename=devil`
+```
+api.neotomadb.org/v1/data/sites?sitename=devil
+```
 
 Here, `success = 1`, but `data=[]`, i.e. the API successfully reported back to you that no sites in Neotoma have the exact name of 'devil'.
 
 OK, now your turn:  
-<p style="border:3px; border-style:solid; border-color:#a9a9a9; padding: 1em;">**Exercise Question 1** Use the *sites* API to retrieve site data for sites of interest.  The *sites* API has a few different parameters, so try out options.  In your homework exercise, provide at least two *sites* API calls with a comment line.</p>  
+<p style="border:3px; border-style:solid; border-color:#a9a9a9; padding: 1em;"><b>Exercise Question 1</b> Use the *sites* API to retrieve site data for sites of interest.  The *sites* API has a few different parameters, so try out options.  In your homework exercise, provide at least two *sites* API calls with a comment line.</p>  
 
-<p style="border:3px; border-style:solid; border-color:#a9a9a9; padding: 1em;">**Exercise Question 2** Do the same for the  *datasets* and *downloads* API (only one API example of each needed).  Note that data volumes for objects returned by *downloads* can get quite large, so be judicious.</p>
+<p style="border:3px; border-style:solid; border-color:#a9a9a9; padding: 1em;"><b>Exercise Question 2</b> Do the same for the  *datasets* and *downloads* API (only one API example of each needed).  Note that data volumes for objects returned by *downloads* can get quite large, so be judicious.</p>
 
 Note also that the 'DBTables' set of APIs is *very* helpful - this provides direct access to the contents of each individual table stored inside of Neotoma DB.  DBTables provides both a good way to get a better sense of the Neotoma DB data model (in addition to the [Neotoma Manual](https://neotoma-manual.readthedocs.io/en/latest/)) and a good way to access data when one of the standard APIs doesn't meet your needs.
 
-<p style="border:3px; border-style:solid; border-color:#a9a9a9; padding: 1em;"> **Exercise Question 3** Write an API call that returns 50 records from the *Geochronology* table.</p>
+<p style="border:3px; border-style:solid; border-color:#a9a9a9; padding: 1em;"><b>Exercise Question 3</b> Write an API call that returns 50 records from the *Geochronology* table.</p>
 
 #### Importing Neotoma Data into R and *neotoma*
 ##### *neotoma*: Overview and Loading
+
 The *neotoma* package provides a series of functions inside of R, each one of which calls one or more APIs.  *neotoma* was primarily written by Simon Goring, with support from NSF-Geoinformatics and the ROpenSci project.
 
-Let's begin by installing and loading the *neotoma* package into RStudio. To install, open RStudio and type the command:
+Let's begin by installing and loading the *neotoma* package into RStudio. To install, open RStudio, install the package and then load the functions:
 
-`install.packages('neotoma')`
+```
+install.packages('neotoma')
+library(neotoma)
+```
 
-Then, load *neotoma* into memory:
-
-`library(neotoma)`
-
-##### Finding Sites, Getting Metadata: `get_site`
+##### Finding Sites, Getting Metadata: `get_site()`
 
 We'll start with `get_site`.  `get_site` returns a [data frame](http://www.r-tutor.com/r-introduction/data-frame) with metadata about sites. You can use this to find the spatial coverage of data in a region (using `get_site` with a bounding box), or to get explicit site information easily from more complex data objects.  Use `?get_site` to see all the options available.  `get_site` is essentially an R wrapper for the API `sites` and has very similar functionality.
 
 You can easily search by site name, for example.  
 
-`samwell_site <- get_site(sitename = 'Samwell%');`
+`samwell_site <- get_site(sitename = 'Samwell%')`
 
 Examine the results: `print(samwell_site)`
 
 `get_site` can return one site (as above) or many, e.g.:
-`devil_sites <- get_site(sitename = 'devil%');`
+
+`devil_sites <- get_site(sitename = 'devil%')`
 
 `get_site` (and most *neotoma* functions) returns an data object of type `data.frame` that stores vectors of equal length.  The nice thing about a `data.frame` is that each vector can be of a different type (character, numeric values, etc.). In RStudio, use the Environment panel in upper right to explore the contents of `samwell_site`.
 
@@ -95,12 +98,12 @@ Example: *get all sites in New Mexico (gpid=7956)*
 
 *get all sites in Wisconsin*
 
-`WI_sites <- get_site(gpid = "Wisconsin")``
+`WI_sites <- get_site(gpid = "Wisconsin")`
 
-<p style="border:3px; border-style:solid; border-color:#a9a9a9; padding: 1em;">**Exercise Question 5** Which state has more sites, Minnesota or Wisconsin?  How many of each?  Provide both code and answer.</p>
+<p style="border:3px; border-style:solid; border-color:#a9a9a9; padding: 1em;"><b>Exercise Question 5</b> Which state has more sites, Minnesota or Wisconsin?  How many of each?  Provide both code and answer.</p>
 
 
-We noted above that the object returned from `get_site` is both a `data.frame` and a `site` object.  Because it has a special `print` method some of the information from the full object is obscured when printed.  You can see all the data in the `data.frame` using `str` (short for *structure*):
+We noted above that the object returned from `get_site()` is both a `data.frame` and a `site` object.  Because it has a special `print` method some of the information from the full object is obscured when printed.  You can see all the data in the `data.frame` using `str` (short for *structure*):
 
 `str(samwell_site)`
 
@@ -108,15 +111,16 @@ Let's look at the `description` field:
 
 `samwell_site$description`
 
-##### Finding Datasets, Getting Metadata: `get_dataset`
+##### Finding Datasets, Getting Metadata: `get_dataset()`
 
 The structure of the Neotoma data model, as expressed through the API is roughly: "`counts` of a fossil taxa within `download`, `download` within `dataset`, `dataset` within `site`".  So a `dataset` contains information about a particular dataset from a given site.  A site may have one or several associated datasets.
 
 `get_dataset` returns a list of datasets containing the metadata for each dataset.  It can receive as inputs vectors of site names, vectors of site IDs, or data objects of class `site` (i.e. output from `get_site`!).  For example:
 
-`samwell_datasets <- get_dataset(samwell_site)`
-
-`print(samwell_datasets)`
+```
+samwell_datasets <- get_dataset(samwell_site)
+print(samwell_datasets)
+```
 
 We can pass output from `get_site` to `get_dataset`, even if `get_site` returns multiple sites
 
@@ -159,7 +163,7 @@ Like `browse()`, you can use `get_publication()` to get more information.  Pass 
 
 Note that by default, `get_download` produces a number of messages. These can be suppressed with the flag `verbose = FALSE` in the function call.  
 
-`samwell_all1 <- get_download(samwell_site, verbose = FALSE)``
+`samwell_all1 <- get_download(samwell_site, verbose = FALSE)`
 
 You'll note that not all of the datasets can be downloaded directly to a `download` object.  This is because geochronological datasets have a different data structure than other data, requiring different fields, and as such, they are obtained using  `get_geochron`:
 
@@ -243,9 +247,14 @@ Note: to make it clear which functions come from the `analogue` package we will 
 `devil_pollen_pct_norare <- devil_pollen_pct[, colMeans(devil_pollen_pct, na.rm = TRUE) > 2]`
 
 #Make a pollen diagram in *analogue*
-`analogue::Stratiplot(x = devil_pollen_pct_norare[ , order(colMeans(devil_pollen_pct_norare, na.rm = TRUE),  decreasing = TRUE)], y = devil_data[[1]]$sample.meta$age,
- ylab = devil_data[[1]]$sample.meta$age.type[1],
- xlab = " Pollen Percentage")`
+
+```r
+colOrder = order(colMeans(devil_pollen_pct_norare, na.rm = TRUE),  decreasing = TRUE)
+analogue::Stratiplot(x = devil_pollen_pct_norare[ , colOrder], 
+                     y = devil_data[[1]]$sample.meta$age,
+                    ylab = devil_data[[1]]$sample.meta$age.type[1],
+                    xlab = " Pollen Percentage")
+```
 
  <p style="border:3px; border-style:solid; border-color:#a9a9a9; padding: 1em;">**Question 7**: Make a stratigraphic pollen diagram in *rioja*, for a site of your choice (not Devils Lake).  Show code and resulting diagram. </p>
 
@@ -353,17 +362,20 @@ We can replace parameters in our original call with the `increment` variable, or
 
 This should return the same dataset as the prior function call.  Now, let's increase the values of the indices (the `[1]` and `[2]`) programmatically, so that we keep getting new time slices using a `for` loop.  Each time this loop iterates, the time interval defined by `ageyounger` and `ageolder` will increment by one.
 
-`for(i in 1:20){
+```
+for(i in 1:20){
   one_slice <- get_dataset(taxonname = 'Tsuga*',
               datasettype = 'pollen',
               loc = c(-150, 20, -100, 60),
               ageyoung = increment[i],
               ageold = increment[i + 1])
-}`
+}
+```
 
 However, in this code, each iteration of the `for` loop overwrites the variable `one_slice`.  So, we can create a new variable, filled with 20 `NA` values, ready to store data from each iteration of the loop:
 
-`site_nos <- rep(NA, 20)
+```
+site_nos <- rep(NA, 20)
 for (i in 1:20) {
   one_slice <- get_dataset(taxonname = 'Tsuga*',
               datasettype = 'pollen',
@@ -371,7 +383,8 @@ for (i in 1:20) {
               ageyoung = increment[i],
               ageold = increment[i + 1])
   site_nos[i] <- length(one_slice)
-}`
+}
+```
 
 This might take a bit of time, but you'll see the progression, and for each value of `i`, from `1` to `20`, we're filling `one_slice` with new information, and then taking the `length` of that new dataset and putting it into the vector `site_nos`, at position `i`.
 
@@ -379,7 +392,7 @@ We can now plot the values and take a look at them:
 
 `plot(increment[-1], site_nos)`
 
-```{r, message=FALSE}
+```r
 site_all <- rep(NA, 20)
 for (i in 1:20) {
   all_slice <- get_dataset(datasettype = 'pollen',
@@ -395,7 +408,7 @@ plot(increment[-21], site_nos/site_all)
 Yes!  So we see increasing proportions of *Tsuga* pollen over time.  Where is the pollen coming from?  Let's get the latitude of the samples while we're also getting the percentages.  A `dataset` in the Neotoma package is actually a complicated data object.  It has information about the site, the actual location of the dataset, but also information about the specific dataset (a single site might contain multiple datasets).  To extract the latitude information we can use the `get_site` command:
 
 
-```{r, message=FALSE}
+```
 
 site_lat <- rep(NA, 20)
 
